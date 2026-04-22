@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Panth LLMs.txt — ACL.
+ *
+ * Gates the system.xml "LLMs.txt" group under the standard Stores >
+ * Configuration ACL branch.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Magento_Backend::stores">
+                    <resource id="Magento_Backend::stores_settings">
+                        <resource id="Magento_Config::config">
+                            <resource id="Panth_LlmsTxt::config"
+                                      title="Panth LLMs.txt Configuration"
+                                      sortOrder="420"/>
+                        </resource>
+                    </resource>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>

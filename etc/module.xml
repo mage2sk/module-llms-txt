@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Panth LLMs.txt — Module declaration.
+ *
+ * Standalone module that serves /llms.txt and /llms-full.txt Markdown site
+ * maps aimed at Large Language Model crawlers (ChatGPT, Claude, Perplexity,
+ * Gemini) following the proposal at https://llmstxt.org/.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
+    <module name="Panth_LlmsTxt" setup_version="1.0.0">
+        <sequence>
+            <module name="Panth_Core"/>
+            <module name="Magento_Catalog"/>
+            <module name="Magento_Cms"/>
+            <module name="Magento_UrlRewrite"/>
+        </sequence>
+    </module>
+</config>

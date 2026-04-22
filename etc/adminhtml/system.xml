@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Panth LLMs.txt — System configuration.
+ *
+ * Owns its own section `panth_llms_txt` under the shared `panth` tab.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="panth_llms_txt" translate="label" sortOrder="85" showInDefault="1" showInWebsite="1" showInStore="1">
+            <class>separator-top</class>
+            <label>LLMs.txt</label>
+            <tab>panth</tab>
+            <resource>Panth_LlmsTxt::config</resource>
+
+            <group id="llms_txt" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>LLMs.txt</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable llms.txt</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>When enabled, serves /llms.txt with a curated Markdown site map for LLM crawlers.</comment>
+                </field>
+                <field id="summary" translate="label comment" type="textarea" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Site Summary</label>
+                    <comment>Short summary of your store for the llms.txt header. Leave empty to auto-generate from store name.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="max_categories" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Max Categories</label>
+                    <validate>validate-digits</validate>
+                    <comment>Maximum number of top-level categories to include in llms.txt. Default: 20.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="max_products" translate="label comment" type="text" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Max Products</label>
+                    <validate>validate-digits</validate>
+                    <comment>Maximum number of products to include in llms.txt. Default: 50.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="max_cms" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Max CMS Pages</label>
+                    <validate>validate-digits</validate>
+                    <comment>Maximum number of CMS pages to include in llms.txt. Default: 10.</comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="generate_full_llms" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable llms-full.txt (Expanded)</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Generates an expanded llms-full.txt with full descriptions, all categories, products with prices, and CMS content for shipping/returns/FAQ/about pages.</comment>
+                </field>
+                <field id="shipping_page" translate="label comment" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Shipping Policy CMS Page Identifier</label>
+                    <comment>CMS page identifier (url_key) for the shipping policy page, e.g. "shipping-policy".</comment>
+                    <depends>
+                        <field id="generate_full_llms">1</field>
+                    </depends>
+                </field>
+                <field id="returns_page" translate="label comment" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Returns Policy CMS Page Identifier</label>
+                    <comment>CMS page identifier (url_key) for the returns/refund policy page, e.g. "returns-policy".</comment>
+                    <depends>
+                        <field id="generate_full_llms">1</field>
+                    </depends>
+                </field>
+                <field id="about_page" translate="label comment" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>About Us CMS Page Identifier</label>
+                    <comment>CMS page identifier (url_key) for the about us page, e.g. "about-us".</comment>
+                    <depends>
+                        <field id="generate_full_llms">1</field>
+                    </depends>
+                </field>
+                <field id="faq_page" translate="label comment" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>FAQ CMS Page Identifier</label>
+                    <comment>CMS page identifier (url_key) for the FAQ page, e.g. "faq".</comment>
+                    <depends>
+                        <field id="generate_full_llms">1</field>
+                    </depends>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

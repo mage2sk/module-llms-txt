@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Panth LLMs.txt — Default configuration values for panth_llms_txt/llms_txt.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <panth_llms_txt>
+            <llms_txt>
+                <enabled>1</enabled>
+                <summary></summary>
+                <max_categories>20</max_categories>
+                <max_products>50</max_products>
+                <max_cms>10</max_cms>
+                <generate_full_llms>0</generate_full_llms>
+                <shipping_page></shipping_page>
+                <returns_page></returns_page>
+                <about_page></about_page>
+                <faq_page></faq_page>
+            </llms_txt>
+        </panth_llms_txt>
+    </default>
+</config>

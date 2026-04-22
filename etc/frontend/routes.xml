@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Panth LLMs.txt — Frontend route.
+ *
+ * Registers the `panth_llms` frontName owned by Panth_LlmsTxt. The public
+ * /llms.txt and /llms-full.txt URLs are exposed via url_rewrite rows
+ * installed by Setup/Patch/Data/InstallLlmsFullUrlRewrite.php and map to
+ * panth_llms/llms/index and panth_llms/llms/full respectively.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
+    <router id="standard">
+        <route id="panth_llms" frontName="panth_llms">
+            <module name="Panth_LlmsTxt"/>
+        </route>
+    </router>
+</config>
