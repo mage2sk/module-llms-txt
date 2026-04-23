@@ -9,6 +9,10 @@
 
 # Panth LLMs.txt — /llms.txt for Magento 2 | AI SEO for ChatGPT, Claude, Perplexity, Gemini | Panth Infotech
 
+<p align="center">
+  <img src="docs/screenshots/hero-linkedin.png" alt="Panth LLMs.txt for Magento 2 — Make your Magento 2 store AI-readable in 2 minutes. One file so ChatGPT, Claude, Perplexity and Gemini can understand your catalog. Built by Kishan Savaliya, Panth Infotech — Upwork Top Rated Plus." width="520" />
+</p>
+
 [![Magento 2.4.4 - 2.4.8](https://img.shields.io/badge/Magento-2.4.4%20--%202.4.8-orange?logo=magento&logoColor=white)](https://magento.com)
 [![PHP 8.1 - 8.4](https://img.shields.io/badge/PHP-8.1%20--%208.4-blue?logo=php&logoColor=white)](https://php.net)
 [![Hyva Compatible](https://img.shields.io/badge/Hyva-Compatible-0D9488)](https://www.hyva.io)
@@ -185,9 +189,9 @@ Everything from v1.1 still works — caching, per-store emulation, tag-based inv
 
 ### Admin Configuration — Stores → Configuration → Panth Extensions → LLMs.txt
 
-![Panth LLMs.txt admin configuration — General, Content Limits, Curated Products, llms-full.txt fieldsets](docs/screenshots/admin-config.png)
+![Panth LLMs.txt v1.2 admin configuration — four fieldsets (General, Content Limits, Curated Products, llms-full.txt) with inline help text and scope hints](docs/screenshots/admin-config.png)
 
-*Admin form is now organised into four fieldsets that mirror the output sections: **General**, **Content Limits**, **Curated Products**, **llms-full.txt**. Every setting is store-view scoped.*
+*v1.2 admin form: four collapsible fieldsets mirror the output sections. **General** owns the enable toggle, site summary, priority URLs and collections category IDs. **Content Limits** caps the category tree depth, CMS page count and exclude list. **Curated Products** drives the three product blocks (Featured / Best Sellers / Recent Arrivals) with per-block max counts, toggles and a short-description switch. **llms-full.txt** maps the four policy CMS identifiers (Shipping / Returns / About Us / FAQ). Every setting is store-view scoped.*
 
 ### `/llms-full.txt` — Default Store View (Hyva)
 
@@ -206,13 +210,13 @@ Everything from v1.1 still works — caching, per-store emulation, tag-based inv
 The improved `/llms.txt` looks like this (actual output from a Magento sample-data catalog):
 
 ```markdown
-# ACME Commerce Demo
+# Your Store Name
 
-> Premium outdoor gear and apparel since 2015.
+> Short one-line store summary goes here (configurable in admin).
 
 ## Store Overview
 
-- URL: https://acmestore.com/
+- URL: https://yourstore.com/
 - Type: E-commerce catalog (Magento 2)
 - Store View: Default Store View
 - Currency: USD
@@ -221,76 +225,76 @@ The improved `/llms.txt` looks like this (actual output from a Magento sample-da
 
 ## Company
 
-- Email: hello@acmestore.com
-- Phone: +1-555-0199
-- Address: 123 Summit St
-- City: Boulder
-- Zip: 80302
+- Email: hello@yourstore.com
+- Phone: +1-555-0000
+- Address: 100 Main Street
+- City: Anytown
+- Zip: 00000
 - Country: US
 
 ## Priority URLs
 
-- [Sale](https://acmestore.com/sale.html)
-- [New Arrivals](https://acmestore.com/what-is-new.html)
-- [Size Guide](https://acmestore.com/size-guide)
+- [Sale](https://yourstore.com/sale.html)
+- [New Arrivals](https://yourstore.com/what-is-new.html)
+- [Size Guide](https://yourstore.com/size-guide)
 
 ## Collections
 
-- [Eco Friendly](https://acmestore.com/collections/eco-friendly.html)
-- [Performance Fabrics](https://acmestore.com/collections/performance-fabrics.html)
+- [Eco Friendly](https://yourstore.com/collections/eco-friendly.html)
+- [Performance Fabrics](https://yourstore.com/collections/performance-fabrics.html)
 
 ## Key Pages
 
-- [About us](https://acmestore.com/about-us): Our story and mission
-- [Customer Service](https://acmestore.com/customer-service)
-- [Shipping Policy](https://acmestore.com/shipping-policy)
-- [Returns & Refunds](https://acmestore.com/returns)
-- [FAQ](https://acmestore.com/help-center-faq)
+- [About us](https://yourstore.com/about-us): Our story and mission
+- [Customer Service](https://yourstore.com/customer-service)
+- [Shipping Policy](https://yourstore.com/shipping-policy)
+- [Returns & Refunds](https://yourstore.com/returns)
+- [FAQ](https://yourstore.com/help-center-faq)
 
 ## Category Tree
 
-- [Women's Fashion & Clothing](https://acmestore.com/women.html)
-  - [Tops](https://acmestore.com/women/tops-women.html)
-    - [Jackets](https://acmestore.com/women/tops-women/jackets-women.html)
-    - [Tees](https://acmestore.com/women/tops-women/tees-women.html)
-    - [Bras & Tanks](https://acmestore.com/women/tops-women/tanks-women.html)
-  - [Bottoms](https://acmestore.com/women/bottoms-women.html)
-    - [Pants](https://acmestore.com/women/bottoms-women/pants-women.html)
-    - [Shorts](https://acmestore.com/women/bottoms-women/shorts-women.html)
-- [Men](https://acmestore.com/men.html)
-  - [Tops](https://acmestore.com/men/tops-men.html)
-    - [Jackets](https://acmestore.com/men/tops-men/jackets-men.html)
-    - [Tees](https://acmestore.com/men/tops-men/tees-men.html)
-  - [Bottoms](https://acmestore.com/men/bottoms-men.html)
-- [Gear](https://acmestore.com/gear.html)
-  - [Bags](https://acmestore.com/gear/bags.html)
-  - [Fitness Equipment](https://acmestore.com/gear/fitness-equipment.html)
-  - [Watches](https://acmestore.com/gear/watches.html)
+- [Women's Fashion & Clothing](https://yourstore.com/women.html)
+  - [Tops](https://yourstore.com/women/tops-women.html)
+    - [Jackets](https://yourstore.com/women/tops-women/jackets-women.html)
+    - [Tees](https://yourstore.com/women/tops-women/tees-women.html)
+    - [Bras & Tanks](https://yourstore.com/women/tops-women/tanks-women.html)
+  - [Bottoms](https://yourstore.com/women/bottoms-women.html)
+    - [Pants](https://yourstore.com/women/bottoms-women/pants-women.html)
+    - [Shorts](https://yourstore.com/women/bottoms-women/shorts-women.html)
+- [Men](https://yourstore.com/men.html)
+  - [Tops](https://yourstore.com/men/tops-men.html)
+    - [Jackets](https://yourstore.com/men/tops-men/jackets-men.html)
+    - [Tees](https://yourstore.com/men/tops-men/tees-men.html)
+  - [Bottoms](https://yourstore.com/men/bottoms-men.html)
+- [Gear](https://yourstore.com/gear.html)
+  - [Bags](https://yourstore.com/gear/bags.html)
+  - [Fitness Equipment](https://yourstore.com/gear/fitness-equipment.html)
+  - [Watches](https://yourstore.com/gear/watches.html)
 
 ## Featured Products
 
-- [Push It Messenger Bag](https://acmestore.com/push-it-messenger-bag.html) — $45.00 — SKU 24-WB04 — Bags
+- [Push It Messenger Bag](https://yourstore.com/push-it-messenger-bag.html) — $45.00 — SKU 24-WB04 — Bags
   Slim, durable messenger bag perfect for daily commutes.
-- [Summit Watch](https://acmestore.com/summit-watch.html) — $54.00 — SKU 24-MG03 — Watches
+- [Summit Watch](https://yourstore.com/summit-watch.html) — $54.00 — SKU 24-MG03 — Watches
   Rugged GPS watch built for outdoor adventures.
 
 ## Best Sellers
 
-- [Ina Compression Short](https://acmestore.com/ina-compression-short.html) — $49.00 — SKU WSH11 — Shorts
+- [Ina Compression Short](https://yourstore.com/ina-compression-short.html) — $49.00 — SKU WSH11 — Shorts
   Compression running short with exceptional support and comfort.
-- [Erika Running Short](https://acmestore.com/erika-running-short.html) — $45.00 — SKU WSH12 — Shorts
+- [Erika Running Short](https://yourstore.com/erika-running-short.html) — $45.00 — SKU WSH12 — Shorts
   Body-hugging running short for runners who prefer a fitted cut.
 
 ## Recent Arrivals
 
-- [Sample Product](https://acmestore.com/sample.html) — $99.99 — SKU sample-001 — Bags
+- [Sample Product](https://yourstore.com/sample.html) — $99.99 — SKU sample-001 — Bags
   New arrival sample product description.
 
 ## Sitemaps
 
-- https://acmestore.com/sitemap.xml
-- https://acmestore.com/robots.txt
-- https://acmestore.com/llms-full.txt
+- https://yourstore.com/sitemap.xml
+- https://yourstore.com/robots.txt
+- https://yourstore.com/llms-full.txt
 ```
 
 `/llms-full.txt` adds full policy bodies inline:
