@@ -53,6 +53,13 @@
                         <field id="enabled">1</field>
                     </depends>
                 </field>
+                <field id="exclude_cms" translate="label comment" type="text" sortOrder="45" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Exclude CMS Identifiers</label>
+                    <comment><![CDATA[Comma-separated CMS page identifiers to omit from llms.txt and llms-full.txt. The defaults <code>no-route</code>, <code>privacy-policy-cookie-restriction-mode</code> and <code>enable-cookies</code> are always excluded — this field adds to that list. Example: <code>holiday-banner,dev-test-page</code>.]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
                 <field id="generate_full_llms" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enable llms-full.txt (Expanded)</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>

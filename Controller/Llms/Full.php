@@ -16,15 +16,12 @@ use Magento\Store\Model\StoreManagerInterface;
 use Panth\LlmsTxt\Model\LlmsTxt\FullBuilder;
 
 /**
- * Serves /panth_llms/llms/full as `llms-full.txt` (expanded LLM content).
+ * Serves the expanded `/llms-full.txt` — same contract as `/llms.txt`
+ * but with CMS page bodies + product descriptions + prices inline for
+ * LLMs that ingest the longer document.
  */
 class Full implements HttpGetActionInterface
 {
-    /**
-     * @param RawFactory $rawFactory
-     * @param FullBuilder $fullBuilder
-     * @param StoreManagerInterface $storeManager
-     */
     public function __construct(
         private readonly RawFactory $rawFactory,
         private readonly FullBuilder $fullBuilder,
@@ -38,20 +35,23 @@ class Full implements HttpGetActionInterface
     public function execute(): ResponseInterface|ResultInterface
     {
         $storeId = (int) $this->storeManager->getStore()->getId();
+        $result  = $this->rawFactory->create();
+
+        $result->setHeader('Content-Type', 'text/plain; charset=utf-8', true);
+        $result->setHeader('X-Robots-Tag', 'noindex', true);
+        $result->setHeader('X-Content-Type-Options', 'nosniff', true);
 
         if (!$this->fullBuilder->isEnabled($storeId)) {
-            $result = $this->rawFactory->create();
             $result->setHttpResponseCode(404);
-            $result->setHeader('Content-Type', 'text/plain; charset=utf-8', true);
+            $result->setHeader('Cache-Control', 'no-store, max-age=0', true);
             $result->setContents("# llms-full.txt\n\nExpanded LLM content is not enabled for this store.\n");
             return $result;
         }
 
-        $body = $this->fullBuilder->build($storeId);
-        $result = $this->rawFactory->create();
-        $result->setHeader('Content-Type', 'text/plain; charset=utf-8', true);
-        $result->setHeader('X-Robots-Tag', 'noindex', true);
-        $result->setContents($body);
+        $result->setHeader('Cache-Control', 'public, max-age=3600', true);
+        $result->setHeader('Content-Disposition', 'inline; filename="llms-full.txt"', true);
+
+        $result->setContents($this->fullBuilder->build($storeId));
         return $result;
     }
 }

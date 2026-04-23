@@ -74,8 +74,15 @@ class InstallLlmsFullUrlRewrite implements DataPatchInterface
         $connection = $this->moduleDataSetup->getConnection();
         $table = $this->moduleDataSetup->getTable('url_rewrite');
 
-        foreach ($this->storeManager->getStores(true) as $store) {
+        // Skip admin store (id=0) — the rewrites only matter for frontend
+        // requests and polluting core_config_data / url_rewrite with
+        // admin-scope rows is both noisy and occasionally confusing in the
+        // URL Rewrites admin grid.
+        foreach ($this->storeManager->getStores(false) as $store) {
             $storeId = (int) $store->getId();
+            if ($storeId <= 0) {
+                continue;
+            }
             foreach (self::REWRITES as $request => $target) {
                 try {
                     $connection->delete(

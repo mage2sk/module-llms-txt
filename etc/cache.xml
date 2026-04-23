@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Panth LLMs.txt — cache type declaration.
+ *
+ * Registers `panth_llms_txt` under System → Cache Management so the
+ * merchant can flush the generated llms.txt / llms-full.txt output
+ * independently of Magento's default / full_page caches.
+ *
+ * The translate id is used verbatim as the label in the cache grid.
+ */
+-->
+<config>
+    <type name="panth_llms_txt"
+          translate="label,description"
+          instance="Panth\LlmsTxt\Model\Cache\Type">
+        <label>Panth LLMs.txt</label>
+        <description>Cached /llms.txt and /llms-full.txt Markdown output.</description>
+    </type>
+</config>

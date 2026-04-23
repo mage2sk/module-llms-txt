@@ -14,6 +14,7 @@
                 <max_categories>20</max_categories>
                 <max_products>50</max_products>
                 <max_cms>10</max_cms>
+                <exclude_cms></exclude_cms>
                 <generate_full_llms>0</generate_full_llms>
                 <shipping_page></shipping_page>
                 <returns_page></returns_page>

@@ -14,9 +14,12 @@ use Magento\Cms\Api\PageRepositoryInterface;
 use Magento\Cms\Model\Template\FilterProvider;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\SortOrderBuilder;
+use Magento\Framework\App\Area;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\App\Emulation as AppEmulation;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
+use Panth\LlmsTxt\Model\Cache\Type as LlmsCache;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -45,6 +48,18 @@ class FullBuilder
      * @param FilterProvider $filterProvider
      * @param LoggerInterface $logger
      */
+    /**
+     * Schema version — bump to invalidate cached llms-full.txt when the
+     * output format changes without a manual flush.
+     */
+    private const SCHEMA_VERSION = 'v2';
+
+    /**
+     * Cache TTL (seconds) — default 1 hour. Tag invalidation supersedes
+     * this TTL whenever relevant entities are saved.
+     */
+    private const CACHE_LIFETIME = 3600;
+
     public function __construct(
         private readonly StoreManagerInterface $storeManager,
         private readonly ScopeConfigInterface $scopeConfig,
@@ -54,8 +69,29 @@ class FullBuilder
         private readonly SearchCriteriaBuilder $searchCriteriaBuilder,
         private readonly SortOrderBuilder $sortOrderBuilder,
         private readonly FilterProvider $filterProvider,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
+        private readonly AppEmulation $appEmulation,
+        private readonly LlmsCache $cache
     ) {
+    }
+
+    /**
+     * Return the cache tags this type emits. Matches the standard Magento
+     * catalog / CMS / store / config tags so any of those tag-clean calls
+     * will invalidate us automatically.
+     *
+     * @return string[]
+     */
+    public function cacheTags(): array
+    {
+        return [
+            LlmsCache::CACHE_TAG,
+            \Magento\Catalog\Model\Category::CACHE_TAG,
+            \Magento\Catalog\Model\Product::CACHE_TAG,
+            \Magento\Cms\Model\Page::CACHE_TAG,
+            \Magento\Store\Model\Store::CACHE_TAG,
+            'config_scopes',
+        ];
     }
 
     /**
@@ -66,17 +102,42 @@ class FullBuilder
      */
     public function build(int $storeId): string
     {
+        $cacheKey = sprintf('panth_llms_full_txt_%s_store_%d', self::SCHEMA_VERSION, $storeId);
+        $hit = $this->cache->load($cacheKey);
+        if (is_string($hit) && $hit !== '') {
+            return $hit;
+        }
+
+        // Emulate the target store so URL resolution (products, categories,
+        // prices) respects that store's context rather than leaking the
+        // store the HTTP request was served under.
+        $this->appEmulation->startEnvironmentEmulation($storeId, Area::AREA_FRONTEND, true);
+        try {
+            $body = $this->renderBody($storeId);
+        } finally {
+            $this->appEmulation->stopEnvironmentEmulation();
+        }
+
+        $this->cache->save($body, $cacheKey, $this->cacheTags(), self::CACHE_LIFETIME);
+        return $body;
+    }
+
+    private function renderBody(int $storeId): string
+    {
         try {
             $store = $this->storeManager->getStore($storeId);
         } catch (\Throwable) {
             return "# llms-full.txt\n\nStore not available.\n";
         }
 
-        $base = rtrim((string) $store->getBaseUrl(), '/') . '/';
-        $title = (string) $store->getName();
+        $base  = rtrim((string) $store->getBaseUrl(), '/') . '/';
+        // Prefer the merchant-facing brand name from Store Information over
+        // the internal store-view label (e.g. "Default Store View").
+        $brand = (string) $this->scopeValue('general/store_information/name', $storeId);
+        $title = $brand !== '' ? $brand : (string) $store->getName();
         $summary = (string) $this->scopeValue(self::XML_SUMMARY, $storeId);
         if ($summary === '') {
-            $summary = (string) $this->scopeValue('general/store_information/name', $storeId);
+            $summary = (string) $this->scopeValue('design/head/default_description', $storeId);
         }
         if ($summary === '') {
             $summary = 'Online store catalog, products and editorial content.';
