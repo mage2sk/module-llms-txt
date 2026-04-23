@@ -11,10 +11,18 @@
             <llms_txt>
                 <enabled>1</enabled>
                 <summary></summary>
-                <max_categories>20</max_categories>
-                <max_products>50</max_products>
+                <max_category_depth>3</max_category_depth>
                 <max_cms>10</max_cms>
                 <exclude_cms></exclude_cms>
+                <priority_urls></priority_urls>
+                <collections_categories></collections_categories>
+                <featured_attribute>is_featured</featured_attribute>
+                <max_featured>6</max_featured>
+                <show_bestsellers>1</show_bestsellers>
+                <max_bestsellers>10</max_bestsellers>
+                <show_recent>1</show_recent>
+                <max_recent>10</max_recent>
+                <include_short_description>1</include_short_description>
                 <generate_full_llms>0</generate_full_llms>
                 <shipping_page></shipping_page>
                 <returns_page></returns_page>

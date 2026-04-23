@@ -4,6 +4,9 @@
  * Panth LLMs.txt — System configuration.
  *
  * Owns its own section `panth_llms_txt` under the shared `panth` tab.
+ * The v1.2 redesign adds dedicated fieldsets for Content Limits, Curated
+ * Products and the expanded llms-full.txt options so the admin form
+ * visually mirrors the sections that appear in the output.
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -16,7 +19,7 @@
             <resource>Panth_LlmsTxt::config</resource>
 
             <group id="llms_txt" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                <label>LLMs.txt</label>
+                <label>General</label>
                 <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enable llms.txt</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -24,71 +27,135 @@
                 </field>
                 <field id="summary" translate="label comment" type="textarea" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Site Summary</label>
-                    <comment>Short summary of your store for the llms.txt header. Leave empty to auto-generate from store name.</comment>
+                    <comment><![CDATA[Short one-line summary of your store for the llms.txt header. Falls back to <code>design/head/default_description</code> and then a generic boilerplate if empty.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="max_categories" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Max Categories</label>
-                    <validate>validate-digits</validate>
-                    <comment>Maximum number of top-level categories to include in llms.txt. Default: 20.</comment>
+                <field id="priority_urls" translate="label comment" type="textarea" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Priority URLs</label>
+                    <comment><![CDATA[One URL per line. Format: <code>Label | /path</code> or just <code>/path</code> (label auto-inferred). Rendered under "## Priority URLs" — gives LLM crawlers an explicit hint about your most important pages. Example:<br/><code>Sale | /sale<br/>New Arrivals | /collections/new<br/>Size Guide | /size-guide</code>]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="max_products" translate="label comment" type="text" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Max Products</label>
-                    <validate>validate-digits</validate>
-                    <comment>Maximum number of products to include in llms.txt. Default: 50.</comment>
+                <field id="collections_categories" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Collections (Category IDs)</label>
+                    <comment><![CDATA[Comma-separated category IDs that represent curated landing pages (e.g. <em>New Arrivals</em>, <em>Sale</em>, <em>Eco-Friendly</em>). Rendered under "## Collections" — separate from the full category tree so LLMs understand these are promotional. Example: <code>12,18,22</code>.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
                 </field>
-                <field id="max_cms" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+            </group>
+
+            <group id="limits" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Content Limits</label>
+                <field id="max_category_depth" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Max Category Tree Depth</label>
+                    <validate>validate-digits validate-digits-range digits-range-1-5</validate>
+                    <config_path>panth_llms_txt/llms_txt/max_category_depth</config_path>
+                    <comment>How many levels of the category tree to include (1–5). Default: 3.</comment>
+                </field>
+                <field id="max_cms" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Max CMS Pages</label>
                     <validate>validate-digits</validate>
-                    <comment>Maximum number of CMS pages to include in llms.txt. Default: 10.</comment>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
+                    <config_path>panth_llms_txt/llms_txt/max_cms</config_path>
+                    <comment>Max CMS pages to include under "## Key Pages". Default: 10.</comment>
                 </field>
-                <field id="exclude_cms" translate="label comment" type="text" sortOrder="45" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="exclude_cms" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Exclude CMS Identifiers</label>
-                    <comment><![CDATA[Comma-separated CMS page identifiers to omit from llms.txt and llms-full.txt. The defaults <code>no-route</code>, <code>privacy-policy-cookie-restriction-mode</code> and <code>enable-cookies</code> are always excluded — this field adds to that list. Example: <code>holiday-banner,dev-test-page</code>.]]></comment>
-                    <depends>
-                        <field id="enabled">1</field>
-                    </depends>
+                    <config_path>panth_llms_txt/llms_txt/exclude_cms</config_path>
+                    <comment><![CDATA[Comma-separated identifiers to omit. Defaults <code>no-route</code>, <code>privacy-policy-cookie-restriction-mode</code>, <code>enable-cookies</code> are always excluded — this field adds to that list.]]></comment>
                 </field>
-                <field id="generate_full_llms" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Enable llms-full.txt (Expanded)</label>
+            </group>
+
+            <group id="products" translate="label" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Curated Products</label>
+                <field id="featured_attribute" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Featured Attribute Code</label>
+                    <config_path>panth_llms_txt/llms_txt/featured_attribute</config_path>
+                    <comment><![CDATA[Yes/No EAV attribute code used to mark featured products. Default: <code>is_featured</code>. If the attribute doesn't exist the section is silently skipped.]]></comment>
+                </field>
+                <field id="max_featured" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Max Featured Products</label>
+                    <validate>validate-digits</validate>
+                    <config_path>panth_llms_txt/llms_txt/max_featured</config_path>
+                    <comment>Max items under "## Featured Products". Default: 6. Set to 0 to disable.</comment>
+                </field>
+                <field id="show_bestsellers" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Show Best Sellers</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>Generates an expanded llms-full.txt with full descriptions, all categories, products with prices, and CMS content for shipping/returns/FAQ/about pages.</comment>
+                    <config_path>panth_llms_txt/llms_txt/show_bestsellers</config_path>
+                    <comment>Render a "## Best Sellers" block from Magento's bestseller aggregate (top ordered qty). Requires the bestseller indexer.</comment>
                 </field>
-                <field id="shipping_page" translate="label comment" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Shipping Policy CMS Page Identifier</label>
-                    <comment>CMS page identifier (url_key) for the shipping policy page, e.g. "shipping-policy".</comment>
+                <field id="max_bestsellers" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Max Best Sellers</label>
+                    <validate>validate-digits</validate>
+                    <config_path>panth_llms_txt/llms_txt/max_bestsellers</config_path>
+                    <comment>Max items under "## Best Sellers". Default: 10.</comment>
+                    <depends>
+                        <field id="show_bestsellers">1</field>
+                    </depends>
+                </field>
+                <field id="show_recent" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Show Recent Arrivals</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>panth_llms_txt/llms_txt/show_recent</config_path>
+                    <comment>Render a "## Recent Arrivals" block sorted by created_at.</comment>
+                </field>
+                <field id="max_recent" translate="label comment" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Max Recent Arrivals</label>
+                    <validate>validate-digits</validate>
+                    <config_path>panth_llms_txt/llms_txt/max_recent</config_path>
+                    <comment>Max items under "## Recent Arrivals". Default: 10.</comment>
+                    <depends>
+                        <field id="show_recent">1</field>
+                    </depends>
+                </field>
+                <field id="include_short_description" translate="label comment" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Include Short Descriptions</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>panth_llms_txt/llms_txt/include_short_description</config_path>
+                    <comment>When on, each curated product gets a one-line description beneath its link (from short_description → meta_description → first sentence of description → auto-generated "Name — Category").</comment>
+                </field>
+            </group>
+
+            <group id="full" translate="label" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>llms-full.txt (Expanded)</label>
+                <field id="generate_full_llms" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable llms-full.txt</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <config_path>panth_llms_txt/llms_txt/generate_full_llms</config_path>
+                    <comment>Serves /llms-full.txt with inline shipping / returns / FAQ / about-us policy bodies in addition to the llms.txt content.</comment>
+                </field>
+                <field id="shipping_page" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Shipping Policy CMS Identifier</label>
+                    <config_path>panth_llms_txt/llms_txt/shipping_page</config_path>
+                    <comment>Example: <code>shipping-policy</code>.</comment>
                     <depends>
                         <field id="generate_full_llms">1</field>
                     </depends>
                 </field>
-                <field id="returns_page" translate="label comment" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Returns Policy CMS Page Identifier</label>
-                    <comment>CMS page identifier (url_key) for the returns/refund policy page, e.g. "returns-policy".</comment>
+                <field id="returns_page" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Returns Policy CMS Identifier</label>
+                    <config_path>panth_llms_txt/llms_txt/returns_page</config_path>
+                    <comment>Example: <code>returns-policy</code>.</comment>
                     <depends>
                         <field id="generate_full_llms">1</field>
                     </depends>
                 </field>
-                <field id="about_page" translate="label comment" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>About Us CMS Page Identifier</label>
-                    <comment>CMS page identifier (url_key) for the about us page, e.g. "about-us".</comment>
+                <field id="about_page" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>About Us CMS Identifier</label>
+                    <config_path>panth_llms_txt/llms_txt/about_page</config_path>
+                    <comment>Example: <code>about-us</code>.</comment>
                     <depends>
                         <field id="generate_full_llms">1</field>
                     </depends>
                 </field>
-                <field id="faq_page" translate="label comment" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>FAQ CMS Page Identifier</label>
-                    <comment>CMS page identifier (url_key) for the FAQ page, e.g. "faq".</comment>
+                <field id="faq_page" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>FAQ CMS Identifier</label>
+                    <config_path>panth_llms_txt/llms_txt/faq_page</config_path>
+                    <comment>Example: <code>faq</code>.</comment>
                     <depends>
                         <field id="generate_full_llms">1</field>
                     </depends>

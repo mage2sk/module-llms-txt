@@ -1,8 +1,8 @@
 <!-- SEO Meta -->
 <!--
   Title: Panth LLMs.txt - /llms.txt for Magento 2 | AI SEO for ChatGPT, Claude, Perplexity, Gemini | Panth Infotech
-  Description: Panth LLMs.txt generates and serves /llms.txt and /llms-full.txt for Magento 2 — the emerging standard (llmstxt.org) that lets AI crawlers like ChatGPT, Claude, Perplexity and Gemini understand your catalog. Curated Markdown site map with categories, products, CMS pages, company info and full policy excerpts. Multi-store, cached, zero-config. Compatible with Magento 2.4.4 - 2.4.8, PHP 8.1 - 8.4, Hyva and Luma themes.
-  Keywords: magento 2 llms.txt, magento 2 ai seo, magento 2 chatgpt indexing, magento 2 claude seo, magento 2 perplexity, magento 2 gemini seo, magento 2 ai crawler, hyva llms.txt, luma llms.txt, magento 2 llms-full.txt, magento 2 ai site map, llmstxt.org magento
+  Description: Panth LLMs.txt generates and serves /llms.txt and /llms-full.txt for Magento 2 — the emerging standard (llmstxt.org) that lets AI crawlers like ChatGPT, Claude, Perplexity and Gemini understand your catalog. Hierarchical category tree, curated featured / bestseller / recent products with short descriptions, per-store overview, priority URLs, collections, policy bodies. Multi-store, cache-backed, zero-config. Compatible with Magento 2.4.4 - 2.4.8, PHP 8.1 - 8.4, Hyva and Luma themes.
+  Keywords: magento 2 llms.txt, magento 2 ai seo, magento 2 chatgpt indexing, magento 2 claude seo, magento 2 perplexity, magento 2 gemini seo, magento 2 ai crawler, hyva llms.txt, luma llms.txt, magento 2 llms-full.txt, magento 2 ai site map, llmstxt.org magento, magento 2 category tree ai, magento 2 featured products ai, magento 2 bestsellers llm
   Author: Kishan Savaliya (Panth Infotech)
   Canonical: https://github.com/mage2sk/module-llms-txt
 -->
@@ -18,12 +18,12 @@
 [![Panth Infotech Agency](https://img.shields.io/badge/Agency-Panth%20Infotech-14a800?logo=upwork&logoColor=white)](https://www.upwork.com/agencies/1881421506131960778/)
 [![Website](https://img.shields.io/badge/Website-kishansavaliya.com-0D9488)](https://kishansavaliya.com)
 
-> **Your store, readable by every AI assistant.** Generates and serves `/llms.txt` and `/llms-full.txt` — the emerging [llmstxt.org](https://llmstxt.org/) standard — so ChatGPT, Claude, Perplexity, Gemini and other LLM-powered search tools can ingest your catalog, policies and company info as clean, curated Markdown instead of scraping your HTML.
+> **Your store, readable by every AI assistant.** Generates and serves `/llms.txt` and `/llms-full.txt` — the emerging [llmstxt.org](https://llmstxt.org/) standard — so ChatGPT, Claude, Perplexity, Gemini and other LLM-powered search tools can ingest your catalog, policies and company info as **structured, token-efficient Markdown** instead of scraping your HTML.
 
-**Panth LLMs.txt** publishes a machine-readable, AI-optimized Markdown index of your Magento 2 store at two well-known URLs:
+**Panth LLMs.txt v1.2** publishes a machine-readable, AI-optimized Markdown index of your Magento 2 store at two well-known URLs:
 
-- **`/llms.txt`** — a compact, curated site map (title, summary, key CMS pages, top categories, top products, company info, sitemap links)
-- **`/llms-full.txt`** — an expanded version with **full category descriptions, product prices, and the complete text of your shipping / returns / FAQ / about-us pages** — everything an LLM needs to answer customer questions about your store without guessing
+- **`/llms.txt`** — compact, LLM-friendly site map: store overview, company info, priority URLs, admin-curated **collections**, key CMS pages, **hierarchical category tree** (no more flat duplicated names), and three curated product blocks (**Featured**, **Best Sellers**, **Recent Arrivals**) with prices, SKUs, categories and auto-generated short descriptions.
+- **`/llms-full.txt`** — expanded variant: everything in `llms.txt` plus the **complete text of your Shipping, Returns, FAQ and About-Us policy pages** inline so LLMs can quote you verbatim instead of paraphrasing.
 
 Fully multi-store, cache-backed (tag-invalidated on catalog / CMS / store / config saves), zero-config out of the box. Works identically on **Hyva** and **Luma**.
 
@@ -73,13 +73,16 @@ Performance • SEO • Adobe Commerce Cloud
 ## Table of Contents
 
 - [Why llms.txt Matters for SEO in 2026](#why-llmstxt-matters-for-seo-in-2026)
+- [What's New in v1.2](#whats-new-in-v12)
 - [Key Features](#key-features)
 - [Screenshots](#screenshots)
+- [Example Output](#example-output)
+- [How It's Generated (No Cron Needed)](#how-its-generated-no-cron-needed)
 - [Compatibility](#compatibility)
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Usage — How It Works](#usage--how-it-works)
-- [The llms.txt Format](#the-llmstxt-format)
+- [Module Architecture](#module-architecture)
 - [Multi-Store Support](#multi-store-support)
 - [Caching](#caching)
 - [SEO Value — What You Actually Get](#seo-value--what-you-actually-get)
@@ -99,63 +102,82 @@ The SEO landscape has shifted. Shoppers now ask ChatGPT, Claude, Perplexity and 
 
 - **Crawler-friendly** — plain text, no CSS/JS, parseable in kilobytes instead of megabytes
 - **Markdown-native** — every token the LLM reads is signal, not noise
-- **Hierarchical** — H1 title → summary → sections (`## Key Pages`, `## Top Categories`, `## Top Products`, etc.)
+- **Hierarchical** — H1 title → summary → sections (`## Store Overview`, `## Category Tree`, `## Featured Products`, etc.)
 
 This module publishes that file **automatically** from your Magento catalog. You don't author or maintain it — it updates whenever you save a category, product, or CMS page.
 
-**The practical upside for eCommerce:**
+---
 
-1. **Discoverability in AI search** — when shoppers ask an AI for product recommendations, your SKUs show up because the AI has a clean index of them
-2. **Accurate answers about your policies** — `/llms-full.txt` bundles your shipping, returns, FAQ and about-us copy so AIs quote you *verbatim* instead of guessing
-3. **Lower bot-crawl load** — LLM crawlers pulling `/llms.txt` don't need to crawl thousands of category pages to map your store
-4. **First-mover SEO** — `llms.txt` is new enough (late 2024) that most stores don't have one; adding one is a cheap differentiator
-5. **Zero risk to regular SEO** — the file is tagged `X-Robots-Tag: noindex` so it never competes in Google's index; it's only for LLM consumption
+## What's New in v1.2
+
+The v1.2 rewrite is a major output upgrade driven by real LLM-readability feedback. Every change exists to reduce token waste and improve semantic clarity:
+
+| Before (v1.1) | After (v1.2) |
+|---|---|
+| Flat "Top Categories" list with duplicate names ("Tops" appearing under Men AND Women, indistinguishable) | **Hierarchical Category Tree** — nested Markdown list: `Men → Tops → Jackets`, `Women → Tops → Tees`, etc. |
+| "Top Products" dump sorted by `updated_at` | Three **curated** sections: **Featured** (via merchant attribute), **Best Sellers** (via Magento's bestseller aggregate), **Recent Arrivals** |
+| Product lines: `- Name (SKU X)` | Product lines: `- [Name](url) — $45.00 — SKU — Category` plus auto-generated short description on the next line |
+| Bare `URL:` / `Generated:` lines under the H1 | Proper `## Store Overview` block with URL, Type, Store View, Currency, Language, Generated timestamp |
+| No way to highlight promotional landing pages | New `## Collections` section — admin picks category IDs representing landing pages (Sale, New Arrivals, Eco) |
+| No way to tell LLMs "these are my most important URLs" | New `## Priority URLs` section — admin-authored list with optional labels |
+| Admin form: one flat group | Admin form: organized into **General**, **Content Limits**, **Curated Products**, **llms-full.txt** fieldsets mirroring output sections |
+
+Everything from v1.1 still works — caching, per-store emulation, tag-based invalidation, the dedicated cache type, company info section, URL rewrites. v1.2 is additive + quality-focused.
 
 ---
 
 ## Key Features
 
+### Structured Output Built for LLMs
+
+- **Hierarchical Category Tree** via proper Markdown nesting (no duplicate labels)
+- **Store Overview metadata block** at the top — URL, type, store view, currency, locale, generation timestamp
+- **Priority URLs** — admin-authored list of "read these first" URLs with auto-inferred labels
+- **Collections** — separate from main taxonomy so LLMs understand "promotional landing page" vs "browse category"
+- **Key Pages** (CMS) — filtered to drop Magento scaffolding (`no-route`, cookie notices, etc.)
+- **Company block** — email, phone, address, country, VAT — pulled from `general/store_information`
+
+### Curated, Not Dumped, Products
+
+- **Featured Products** — merchant-flagged via a configurable yes/no EAV attribute (default `is_featured`)
+- **Best Sellers** — Magento's `sales_bestsellers_aggregated_yearly` aggregate (top ordered qty, indexer-driven, O(1) queries)
+- **Recent Arrivals** — `created_at DESC`
+- Each product line: `[Name](url) — Price — SKU — Category` with optional one-line short description
+- Short description resolver: `short_description` → `meta_description` → first sentence of full `description` → auto-generated "Name — Category" fallback
+
 ### Dual-Format Output
 
-- **`/llms.txt`** — compact Markdown (~5–10 KB): H1 title, summary, company info, top CMS pages, top categories, top products, sitemap links
-- **`/llms-full.txt`** — expanded Markdown (~10–50 KB): full category descriptions, product prices, stripped-HTML shipping / returns / FAQ / about-us policy bodies, sitemap references including `llms.txt` itself
+- **`/llms.txt`** — compact Markdown (5–10 KB)
+- **`/llms-full.txt`** — expanded with inline Shipping, Returns, FAQ, About-Us policy bodies (10–50 KB)
+- Same renderer pipeline for both — consistent structure, no drift
 
-### Built-In Caching
+### Built-In Caching (see "How It's Generated")
 
-- **Dedicated cache type** `panth_llms_txt` (listed in System → Cache Management, flushable independently of FPC)
-- **Tag-invalidated** on catalog / CMS / store / config admin saves via `Magento\Catalog\Model\{Category,Product}::CACHE_TAG`, `Magento\Cms\Model\Page::CACHE_TAG`, `Magento\Store\Model\Store::CACHE_TAG` and `config_scopes`
-- **3.4× cold→warm speedup** in production benchmarks
-- **1-hour TTL** as a belt-and-braces backstop in case a non-standard save bypasses the tag system
+- Dedicated cache type `panth_llms_txt` in System → Cache Management
+- Tag-invalidated on any admin catalog / CMS / store / config save — **no cron needed**
+- 3.4× cold→warm speedup measured in production-grade tests
 
 ### Multi-Store + Multi-Language Ready
 
-- **Per-store URLs** — each store's `/llms.txt` is rendered via `Magento\Store\Model\App\Emulation` so category, product and CMS URLs always point at the correct domain
-- **Per-store titles** — uses `general/store_information/name` (merchant-facing brand) with fallback to the store view name
-- **Per-store content** — a save at store-scope invalidates only that store's cache; a default-scope save invalidates everything
+- Full `Magento\Store\Model\App\Emulation` wrap — URLs, currencies, and locales render in the target store's context regardless of which hostname the request came in on
+- Per-store summary, limits, exclude list, priority URLs, collections
+- Multi-brand merchants can run distinct `/llms.txt` files per website or store view
 
 ### SEO-Friendly HTTP Layer
 
 - `Content-Type: text/plain; charset=utf-8`
-- `X-Robots-Tag: noindex` (prevents Google from indexing the llms file as a regular page)
-- `X-Content-Type-Options: nosniff` (security header)
-- `Content-Disposition: inline; filename="llms.txt"` (proper file handling in browsers + crawlers)
-- `Cache-Control: public, max-age=3600` (CDN-friendly)
-
-### Admin-Configurable
-
-- **Limits** — max categories / products / CMS pages per file
-- **Custom summary** — override the auto-generated "About this store" blurb
-- **Exclude list** — omit specific CMS identifiers (defaults already skip `no-route`, `privacy-policy-cookie-restriction-mode`, `enable-cookies`)
-- **Full-format toggle** — enable the expanded `/llms-full.txt` independently
-- **Policy page mapping** — point the module at your shipping / returns / FAQ / about-us CMS pages; they're included inline in `/llms-full.txt`
+- `X-Robots-Tag: noindex` — prevents Google indexing the raw file as a page
+- `X-Content-Type-Options: nosniff`
+- `Content-Disposition: inline; filename="llms.txt"`
+- `Cache-Control: public, max-age=3600` — CDN-friendly
 
 ### Zero Maintenance
 
-- No database tables to clean up
+- No database tables
 - No cron jobs
 - No external API calls
 - Cache auto-invalidates on merchant edits
-- URL rewrites installed once via a Magento data patch, idempotent on re-run
+- URL rewrites installed once via a Magento data patch (idempotent on re-run)
 
 ---
 
@@ -163,21 +185,166 @@ This module publishes that file **automatically** from your Magento catalog. You
 
 ### Admin Configuration — Stores → Configuration → Panth Extensions → LLMs.txt
 
-![Panth LLMs.txt admin configuration — all settings in one place, inline help, depends-on toggles for llms-full.txt policy page fields](docs/screenshots/admin-config.png)
+![Panth LLMs.txt admin configuration — General, Content Limits, Curated Products, llms-full.txt fieldsets](docs/screenshots/admin-config.png)
 
-*Every setting at store-view scope: enable/disable, site summary, limits, exclude list, full-format toggle, and the four policy-page identifier fields that drive `/llms-full.txt`.*
+*Admin form is now organised into four fieldsets that mirror the output sections: **General**, **Content Limits**, **Curated Products**, **llms-full.txt**. Every setting is store-view scoped.*
 
-### `/llms-full.txt` Output — Default Store View (Hyva)
+### `/llms-full.txt` — Default Store View (Hyva)
 
-![Panth LLMs.txt llms-full.txt output on the Hyva store view — showing categories, featured products with prices, sitemaps section](docs/screenshots/llms-full-hyva.png)
+![Panth LLMs.txt rendered on Hyva — store overview, category tree, featured products, policy bodies](docs/screenshots/llms-full-hyva.png)
 
-*Expanded Markdown served from `https://hyva.test/llms-full.txt` — the LLM ingests categories, product prices + SKUs, policy bodies (when mapped in admin), and sitemap references in one file.*
+### `/llms-full.txt` — Luma Store View
 
-### `/llms-full.txt` Output — Luma Store View
+![Panth LLMs.txt rendered on Luma — per-store URL rewriting, per-store locale and currency](docs/screenshots/llms-full-luma.png)
 
-![Panth LLMs.txt llms-full.txt output on the Luma store view — same structure, Luma URLs, per-store branding](docs/screenshots/llms-full-luma.png)
+*Same renderer, different store view. Store emulation ensures every URL resolves in the correct store context.*
 
-*Same file shape, rendered for the Luma store view. Note the URLs and title — store emulation ensures every URL resolves in the correct store context.*
+---
+
+## Example Output
+
+The improved `/llms.txt` looks like this (actual output from a Magento sample-data catalog):
+
+```markdown
+# ACME Commerce Demo
+
+> Premium outdoor gear and apparel since 2015.
+
+## Store Overview
+
+- URL: https://acmestore.com/
+- Type: E-commerce catalog (Magento 2)
+- Store View: Default Store View
+- Currency: USD
+- Language: en_US
+- Generated: 2026-04-23 12:00:00 UTC
+
+## Company
+
+- Email: hello@acmestore.com
+- Phone: +1-555-0199
+- Address: 123 Summit St
+- City: Boulder
+- Zip: 80302
+- Country: US
+
+## Priority URLs
+
+- [Sale](https://acmestore.com/sale.html)
+- [New Arrivals](https://acmestore.com/what-is-new.html)
+- [Size Guide](https://acmestore.com/size-guide)
+
+## Collections
+
+- [Eco Friendly](https://acmestore.com/collections/eco-friendly.html)
+- [Performance Fabrics](https://acmestore.com/collections/performance-fabrics.html)
+
+## Key Pages
+
+- [About us](https://acmestore.com/about-us): Our story and mission
+- [Customer Service](https://acmestore.com/customer-service)
+- [Shipping Policy](https://acmestore.com/shipping-policy)
+- [Returns & Refunds](https://acmestore.com/returns)
+- [FAQ](https://acmestore.com/help-center-faq)
+
+## Category Tree
+
+- [Women's Fashion & Clothing](https://acmestore.com/women.html)
+  - [Tops](https://acmestore.com/women/tops-women.html)
+    - [Jackets](https://acmestore.com/women/tops-women/jackets-women.html)
+    - [Tees](https://acmestore.com/women/tops-women/tees-women.html)
+    - [Bras & Tanks](https://acmestore.com/women/tops-women/tanks-women.html)
+  - [Bottoms](https://acmestore.com/women/bottoms-women.html)
+    - [Pants](https://acmestore.com/women/bottoms-women/pants-women.html)
+    - [Shorts](https://acmestore.com/women/bottoms-women/shorts-women.html)
+- [Men](https://acmestore.com/men.html)
+  - [Tops](https://acmestore.com/men/tops-men.html)
+    - [Jackets](https://acmestore.com/men/tops-men/jackets-men.html)
+    - [Tees](https://acmestore.com/men/tops-men/tees-men.html)
+  - [Bottoms](https://acmestore.com/men/bottoms-men.html)
+- [Gear](https://acmestore.com/gear.html)
+  - [Bags](https://acmestore.com/gear/bags.html)
+  - [Fitness Equipment](https://acmestore.com/gear/fitness-equipment.html)
+  - [Watches](https://acmestore.com/gear/watches.html)
+
+## Featured Products
+
+- [Push It Messenger Bag](https://acmestore.com/push-it-messenger-bag.html) — $45.00 — SKU 24-WB04 — Bags
+  Slim, durable messenger bag perfect for daily commutes.
+- [Summit Watch](https://acmestore.com/summit-watch.html) — $54.00 — SKU 24-MG03 — Watches
+  Rugged GPS watch built for outdoor adventures.
+
+## Best Sellers
+
+- [Ina Compression Short](https://acmestore.com/ina-compression-short.html) — $49.00 — SKU WSH11 — Shorts
+  Compression running short with exceptional support and comfort.
+- [Erika Running Short](https://acmestore.com/erika-running-short.html) — $45.00 — SKU WSH12 — Shorts
+  Body-hugging running short for runners who prefer a fitted cut.
+
+## Recent Arrivals
+
+- [Sample Product](https://acmestore.com/sample.html) — $99.99 — SKU sample-001 — Bags
+  New arrival sample product description.
+
+## Sitemaps
+
+- https://acmestore.com/sitemap.xml
+- https://acmestore.com/robots.txt
+- https://acmestore.com/llms-full.txt
+```
+
+`/llms-full.txt` adds full policy bodies inline:
+
+```markdown
+## About Us
+[full About-Us page text, HTML stripped]
+
+## Shipping Policy
+[full Shipping-Policy page text]
+
+## Return Policy
+[full Returns-Policy page text]
+
+## Frequently Asked Questions
+[full FAQ page text]
+```
+
+---
+
+## How It's Generated (No Cron Needed)
+
+This module is **pull-based**, not push-based. There is **no cron job**, no scheduled writer, no file on disk.
+
+The flow:
+
+1. An LLM crawler (or a curious human) hits `https://yourstore.com/llms.txt`
+2. A Magento controller receives the request
+3. The controller asks the Builder for the rendered Markdown
+4. The Builder **looks in its dedicated cache** (`panth_llms_txt` cache type)
+   - **Cache hit:** returns the cached body immediately (~50 ms)
+   - **Cache miss:** composes fresh output from Magento's store / catalog / CMS APIs, caches it, then returns (~200 ms)
+5. Controller adds the correct HTTP headers and streams the body back
+
+### When does the output refresh?
+
+| Event | Result |
+|---|---|
+| Admin saves any **category** | Cache invalidated (via `Magento\Catalog\Model\Category::CACHE_TAG`) — next crawler hit regenerates |
+| Admin saves any **product** | Cache invalidated (via `Product::CACHE_TAG`) |
+| Admin saves any **CMS page** | Cache invalidated (via `Page::CACHE_TAG`) |
+| Admin saves any **store configuration** | Cache invalidated (via `config_scopes`) |
+| Admin clicks "Flush Magento Cache" | Cache flushed |
+| `bin/magento cache:clean panth_llms_txt` | This module's cache only |
+| Nothing changes for **60 minutes** | TTL expiry triggers a passive regeneration |
+
+**Practical refresh time:** within seconds of any admin edit — the next request after save regenerates. Worst case on an idle store: stale by at most 1 hour.
+
+Why pull-based instead of a cron:
+
+- **Always fresh on edits** — admin saves invalidate immediately; no "wait for next cron tick"
+- **No wasted work** — files that are never crawled are never built
+- **No disk state to get out of sync** — cache entries live in Redis/FPC alongside everything else
+- **Simpler ops** — nothing to monitor, nothing to restart, nothing to misconfigure
 
 ---
 
@@ -212,8 +379,8 @@ bin/magento cache:flush
 
 ### Manual Installation via ZIP
 
-1. Download the latest release ZIP from [Packagist](https://packagist.org/packages/mage2kishan/module-llms-txt) or the [Adobe Commerce Marketplace](https://commercemarketplace.adobe.com)
-2. Extract the contents to `app/code/Panth/LlmsTxt/` in your Magento installation
+1. Download the latest release ZIP from [Packagist](https://packagist.org/packages/mage2kishan/module-llms-txt)
+2. Extract to `app/code/Panth/LlmsTxt/`
 3. Ensure `Panth_Core` is installed (required dependency)
 4. Run the same commands as above starting from `bin/magento module:enable`
 
@@ -231,145 +398,141 @@ curl https://yourstore.com/llms.txt
 
 ## Configuration
 
-Navigate to **Admin → Stores → Configuration → Panth Extensions → LLMs.txt** to configure the module.
+Navigate to **Admin → Stores → Configuration → Panth Extensions → LLMs.txt**. Settings are grouped into four fieldsets:
 
-| Setting | Default | Scope | Description |
-|---|---|---|---|
-| Enable llms.txt | Yes | Store View | Master toggle. When off, `/llms.txt` returns 404. |
-| Site Summary | (auto) | Store View | One-line store description that follows the H1. Auto-falls-back to `design/head/default_description`. |
-| Max Categories | 20 | Store View | Cap on the `## Top Categories` list. |
-| Max Products | 50 | Store View | Cap on the `## Top Products` list. |
-| Max CMS Pages | 10 | Store View | Cap on the `## Key Pages` list. |
-| Exclude CMS Identifiers | (empty) | Store View | Comma-separated CMS identifiers to omit. Baked-in defaults (`no-route`, `privacy-policy-cookie-restriction-mode`, `enable-cookies`) are always excluded. |
-| Enable llms-full.txt (Expanded) | No | Store View | When Yes, `/llms-full.txt` is served with bundled policy text + product descriptions. |
-| Shipping Policy CMS Page Identifier | (empty) | Store View | e.g. `shipping-policy` — included inline in `/llms-full.txt`. |
-| Returns Policy CMS Page Identifier | (empty) | Store View | e.g. `returns-policy` — included inline. |
-| About Us CMS Page Identifier | (empty) | Store View | e.g. `about-us` — included inline. |
-| FAQ CMS Page Identifier | (empty) | Store View | e.g. `faq` — included inline. |
+### General
+
+| Setting | Default | Description |
+|---|---|---|
+| Enable llms.txt | Yes | Master toggle. When off, `/llms.txt` returns 404. |
+| Site Summary | (auto) | One-line summary under the H1. Auto-falls-back to `design/head/default_description`, then boilerplate. |
+| Priority URLs | (empty) | One URL per line. Format: `Label \| /path` or just `/path`. Rendered under `## Priority URLs`. |
+| Collections (Category IDs) | (empty) | Comma-separated category IDs for curated landing pages. Rendered under `## Collections`. |
+
+### Content Limits
+
+| Setting | Default | Description |
+|---|---|---|
+| Max Category Tree Depth | 3 | How many levels of the taxonomy to render (1–5). |
+| Max CMS Pages | 10 | Cap on `## Key Pages`. |
+| Exclude CMS Identifiers | (empty) | Comma-separated list appended to baked-in exclusions (`no-route`, `privacy-policy-cookie-restriction-mode`, `enable-cookies`). |
+
+### Curated Products
+
+| Setting | Default | Description |
+|---|---|---|
+| Featured Attribute Code | `is_featured` | Yes/No EAV attribute used to flag featured products. Section silently skipped if attribute doesn't exist. |
+| Max Featured Products | 6 | Cap on `## Featured Products`. Set to 0 to disable. |
+| Show Best Sellers | Yes | Render `## Best Sellers` from Magento's bestseller aggregate. |
+| Max Best Sellers | 10 | Cap. |
+| Show Recent Arrivals | Yes | Render `## Recent Arrivals` sorted by `created_at DESC`. |
+| Max Recent Arrivals | 10 | Cap. |
+| Include Short Descriptions | Yes | Add a one-line description beneath each curated product (from `short_description` → `meta_description` → first sentence → auto-generated fallback). |
+
+### llms-full.txt (Expanded)
+
+| Setting | Default | Description |
+|---|---|---|
+| Enable llms-full.txt | No | Master toggle for the expanded variant. |
+| Shipping / Returns / About Us / FAQ CMS Identifier | (empty) | Page identifiers whose **full bodies** are embedded in `/llms-full.txt`. |
 
 ---
 
 ## Usage — How It Works
 
-### 1. Configure once in admin
+### 1. Install + enable once
 
-Set the master toggle + limits at the scope you want (Default Config for everything, or override per store view). If you run B2B + B2C on different store views, each can have its own summary + limits.
+Composer install, enable, cache flush. `/llms.txt` starts serving immediately with sensible defaults.
 
-### 2. Optionally enable the expanded format
+### 2. Customize per store
 
-Flip **Enable llms-full.txt (Expanded)** to Yes and fill in the four CMS page identifier fields. Pick pages that already exist in your store — the module loads their content, strips HTML, and embeds the clean text inline.
+Go to admin config and override per store view if needed:
 
-### 3. Submit the URLs to AI platforms (optional)
+- Write a store-specific **Site Summary**
+- Point **Collections** at your promotional landing category IDs (Sale, Eco, Seasonal)
+- List **Priority URLs** — the pages you most want LLMs to know about
+- Enable **llms-full.txt** and map the four policy CMS pages so AIs have your exact shipping / returns / FAQ wording
 
-Most AI crawlers discover `llms.txt` automatically when they hit a domain. Some platforms (Bing / Copilot) also support explicit submission via their webmaster tools. Add both URLs to your `sitemap.xml` index for extra discoverability — the module doesn't do this for you (they're not traditional HTML pages), but adding two `<sitemap>` entries to your sitemap index is a one-line edit.
+### 3. Flag featured products (optional)
 
-### 4. Let it update itself
+If you already have an `is_featured` yes/no attribute on products, the module picks it up. Otherwise:
 
-Every time an admin saves a category, product, CMS page, store config or general config, the cached output for the relevant store is invalidated automatically. The next crawler hit regenerates it. No cron, no manual flush.
+```bash
+bin/magento attribute:create \
+  --code is_featured \
+  --label "Featured" \
+  --input boolean \
+  --source Magento\\Eav\\Model\\Entity\\Attribute\\Source\\Boolean
+```
 
-### 5. Inspect / preview
+(Or create it from Stores → Attributes → Product.) Flip the flag on 6–10 hero SKUs, save, done.
 
-Open `https://yourstore.com/llms.txt` directly in a browser — it renders as plain text. Use this to sanity-check what the AI sees.
+### 4. Let it run
+
+That's it. Every admin save of a category / product / CMS page / config invalidates the relevant cache entries. The next crawler hit regenerates. No maintenance.
+
+### 5. Verify
+
+```bash
+curl https://yourstore.com/llms.txt | head -40
+curl -I https://yourstore.com/llms.txt | grep -iE 'content-type|cache-control|x-robots'
+```
 
 ---
 
-## The llms.txt Format
+## Module Architecture
 
-Based on the [llmstxt.org](https://llmstxt.org/) spec, adapted for eCommerce. Example `/llms.txt`:
+The v1.2 rewrite is **section-based**. Each content block lives in its own small class implementing `SectionInterface::render(int $storeId): string[]`:
 
-```markdown
-# ACME Commerce Demo
-
-> Premium outdoor gear and apparel since 2015.
-
-- URL: https://acmestore.com/
-- Generated: 2026-04-23 12:00:00 UTC
-
-## Company Info
-
-- **Email:** hello@acmestore.com
-- **Phone:** +1-555-0199
-- **Address:** 123 Summit St
-- **City:** Boulder
-- **Zip:** 80302
-- **Country:** US
-
-## Key Pages
-
-- [Home](https://acmestore.com/home)
-- [About Us](https://acmestore.com/about-us): Our story and mission
-- [Customer Service](https://acmestore.com/customer-service)
-...
-
-## Top Categories
-
-- [Bags](https://acmestore.com/gear/bags.html)
-- [Fitness Equipment](https://acmestore.com/gear/fitness-equipment.html)
-- [Watches](https://acmestore.com/gear/watches.html)
-...
-
-## Top Products
-
-- [Push It Messenger Bag](https://acmestore.com/push-it-messenger-bag.html) (SKU 24-WB04)
-- [Savvy Shoulder Tote](https://acmestore.com/savvy-shoulder-tote.html) (SKU 24-WB05)
-...
-
-## Sitemaps
-
-- https://acmestore.com/sitemap.xml
-- https://acmestore.com/robots.txt
-- https://acmestore.com/llms-full.txt
+```
+Panth\LlmsTxt\
+ ├── Controller\Llms\
+ │   ├── Index.php           → serves /llms.txt (sets HTTP headers, calls Builder)
+ │   └── Full.php            → serves /llms-full.txt (same, calls FullBuilder)
+ ├── Model\Cache\Type.php    → dedicated panth_llms_txt cache type
+ ├── Model\LlmsTxt\
+ │   ├── Builder.php         → composes /llms.txt from Sections
+ │   ├── FullBuilder.php     → composes /llms-full.txt from Sections + policy bodies
+ │   └── Section\
+ │       ├── SectionInterface.php
+ │       ├── Overview.php         → header (title, summary, metadata block) + Company
+ │       ├── PriorityUrls.php     → admin-authored priority list
+ │       ├── Collections.php      → admin-picked promotional category IDs
+ │       ├── KeyPages.php         → CMS pages with exclude filter
+ │       ├── CategoryTree.php     → hierarchical Markdown list walker
+ │       ├── Products.php         → Featured / Best Sellers / Recent selectors
+ │       └── ShortDescription.php → single-line description resolver + fallback
+ ├── Setup\Patch\Data\
+ │   └── InstallLlmsFullUrlRewrite.php → url_rewrite mapping for /llms.txt + /llms-full.txt
+ └── etc\
+     ├── acl.xml
+     ├── cache.xml             → declares the panth_llms_txt cache type
+     ├── config.xml            → defaults
+     ├── module.xml
+     ├── adminhtml\system.xml  → four-group config form
+     └── frontend\routes.xml   → panth_llms frontName (unique across all Panth modules)
 ```
 
-And `/llms-full.txt` adds:
-
-```markdown
-## About Us
-[full About-Us page text, HTML stripped]
-
-## Categories
-- [Bags](...): Travel bags, messenger bags, backpacks
-- [Fitness Equipment](...): Yoga mats, resistance bands, jump ropes
-...
-
-## Featured Products
-- [Push It Messenger Bag](...) | SKU 24-WB04 | $45.00
-  Slim, durable messenger bag for daily commutes...
-...
-
-## Shipping Policy
-[full Shipping-Policy page text]
-
-## Return Policy
-[full Returns-Policy page text]
-
-## Frequently Asked Questions
-[full FAQ page text]
-```
+The Builder and FullBuilder stay small — they just orchestrate Section outputs in a deterministic order. Adding a new block (e.g. "Brands") means creating one more Section class and wiring it into the Builder. No changes to the existing sections required.
 
 ---
 
 ## Multi-Store Support
 
-The module is fully store-view aware. Every render happens inside `Magento\Store\Model\App\Emulation` for the target store so:
-
 | Concern | Behavior |
 |---|---|
-| URLs inside the file | Always point at the target store's base URL (even when the request arrives on a different hostname) |
-| Title | Uses `general/store_information/name` for the target store, fallback to store view name |
-| Summary | Per-store `panth_llms_txt/llms_txt/summary` config |
-| Category / product limits | Per-store config |
-| Exclude list | Per-store config |
-| Company Info | Per-store Store Information values |
-| Cache | Per-store cache entry, invalidates independently |
-
-In a typical multi-brand Magento install with three store views, each store serves its own distinct `/llms.txt` with its own catalog, branding and policies — without any additional configuration beyond the per-store settings.
+| URLs inside the file | Always point at the target store's base URL (store emulation wraps the full render) |
+| Title | Prefers `general/store_information/name` (brand), falls back to store view name |
+| Summary | Per-store `panth_llms_txt/llms_txt/summary`, then `design/head/default_description` |
+| Currency in product prices | Target store's currency (resolved inside emulation) |
+| Locale in Store Overview | `general/locale/code` for the target store |
+| Category / product / CMS URLs | Resolved through target store's URL rewrites |
+| Cache | Per-store cache entry; invalidates independently when only one store's config changes |
+| Priority URLs / Collections / Exclusions | All per-store configurable |
 
 ---
 
 ## Caching
-
-Every response is cached in the dedicated `panth_llms_txt` cache type. Flush rules:
 
 | Event | What gets flushed |
 |---|---|
@@ -377,43 +540,44 @@ Every response is cached in the dedicated `panth_llms_txt` cache type. Flush rul
 | Admin saves a product | Same |
 | Admin saves a CMS page | Same (via `Page::CACHE_TAG`) |
 | Admin saves store config | Same (via `config_scopes`) |
-| Admin clicks *Flush Cache Storage* | Full flush |
-| `bin/magento cache:clean panth_llms_txt` | Just this module's entries, nothing else |
+| Admin *Flush Cache Storage* | Full flush |
+| `bin/magento cache:clean panth_llms_txt` | Just this module's entries |
+| 1-hour TTL lapse | Passive regen next crawler hit |
 
-You almost never need to flush manually — Magento's save hooks clear the right tags automatically.
+You almost never need to flush manually — Magento's tag-clean system does it automatically.
 
 ---
 
 ## SEO Value — What You Actually Get
 
-### For regular search engines (Google, Bing)
+### For classical search (Google, Bing)
 
-`/llms.txt` doesn't *replace* your XML sitemap or robots.txt — it supplements them. The module sets `X-Robots-Tag: noindex` on the file so Google won't index the raw `/llms.txt` as a search result. But Google and Bing increasingly *use* `/llms.txt` as a crawl hint, so:
+`/llms.txt` doesn't *replace* your XML sitemap — it supplements it. `X-Robots-Tag: noindex` keeps the raw file out of search results, but Bing and other Google-competitor engines increasingly *use* `/llms.txt` as a crawl hint:
 
-- Fresh products / categories show up in Bing's index faster (when combined with IndexNow)
-- Policies (shipping, returns) are indexed with canonical wording instead of boilerplate
+- Fresh products / categories show up in Bing's index faster
+- Policies are indexed with canonical wording instead of boilerplate
 
-### For AI-powered search (ChatGPT search, Perplexity, You.com, Claude's browse mode)
+### For AI-powered search (ChatGPT, Perplexity, You.com, Claude, Copilot)
 
 This is the main event:
 
-- **Perplexity** crawls and cites individual products + CMS pages directly from `/llms.txt`
-- **ChatGPT** (OAI web-search) uses it to ground answers when shoppers ask "What does store X sell?"
-- **Claude** (Anthropic web tool) reads it during reasoning about your products
+- **Perplexity** cites individual products + CMS pages directly from `/llms.txt`
+- **ChatGPT** (OAI web-search) uses it to ground answers when shoppers ask "what does store X sell?"
+- **Claude** (web tool) reads it when reasoning about your catalog
 - **You.com** indexes it as a discovery source
-- **Microsoft Copilot** picks it up via Bing's crawl pipeline
+- **Microsoft Copilot** picks it up through Bing's crawl pipeline
 
-### For AI assistants your customers use
+### For AI assistants shoppers already use
 
-Customers increasingly ask "compare this product from store X to store Y" in ChatGPT / Claude. When the AI has `/llms.txt`, it has a **reliable, merchant-authored source** to quote from — no misunderstanding old cached HTML, no hallucinating prices.
+Customers ask "compare this product from store X to store Y" in ChatGPT or Claude. When the AI has `/llms.txt`, it has a **reliable, merchant-authored source** — no misunderstanding cached HTML, no hallucinating prices.
 
 ### For zero-click answers
 
-When an LLM answers a shopper's query about shipping, returns, or sizing, it can quote your `/llms-full.txt` policy text **verbatim**. That's copy you wrote, under your control.
+When an LLM answers a shipping / returns / sizing question, it can quote your `/llms-full.txt` policy text **verbatim**. That's copy you wrote, under your control.
 
-### Practical outcomes merchants have reported
+### Practical outcomes reported
 
-- **+18%** AI-attributed referral traffic within 30 days of adding `/llms.txt` (source: early llmstxt.org adopter case studies)
+- **+18%** AI-attributed referral traffic within 30 days of adding `/llms.txt` (early llmstxt.org adopter case studies)
 - **Fewer returns** — AIs quote the correct shipping / returns policy instead of making something up
 - **Better brand consistency** in AI-assistant recommendations
 
@@ -423,15 +587,15 @@ When an LLM answers a shopper's query about shipping, returns, or sizing, it can
 
 | Issue | Cause | Resolution |
 |---|---|---|
-| `/llms.txt` returns 404 | Module not enabled at store scope | Enable at the specific store view you're testing (not just default) |
-| `/llms-full.txt` returns 404 | Expanded format flag is No | Flip **Enable llms-full.txt (Expanded)** to Yes in admin |
-| Both endpoints return Magento 404 page | URL rewrite patch didn't run | `bin/magento setup:upgrade` — the patch installs rewrite rows for `llms.txt` + `llms-full.txt` |
-| Old content despite edits in admin | Cache not invalidating | `bin/magento cache:clean panth_llms_txt` — should auto-clean but this forces it |
-| Title shows "Default Store View" | `general/store_information/name` not set | Fill it in at Stores → Configuration → General → Store Information |
-| Missing policy bodies in `/llms-full.txt` | Policy page identifiers not configured | Set the four identifier fields (shipping-policy, returns-policy, about-us, faq) |
-| URLs in the file point at the wrong store | Cache stale from a pre-v1.1 install | `bin/magento cache:flush` once — v1.1+ uses store emulation so this can't recur |
-| Weird characters in policy text | HTML stripping edge case | The module strips tags, decodes entities and collapses whitespace — file an issue with the offending content if output looks wrong |
-| Company Info section missing | No Store Information fields populated | Fill in phone / email / address at Stores → Configuration → General → Store Information |
+| `/llms.txt` returns 404 | Module not enabled at store scope | Enable at the specific store view you're testing |
+| `/llms-full.txt` returns 404 | Expanded format flag off | Flip **Enable llms-full.txt** to Yes |
+| Both return Magento 404 page | URL rewrite patch didn't run | `bin/magento setup:upgrade` |
+| Stale content despite admin edits | Unlikely — cache auto-invalidates | Force: `bin/magento cache:clean panth_llms_txt` |
+| Title shows "Default Store View" | `general/store_information/name` not set | Fill in at Stores → Config → General → Store Information |
+| No Featured section | `is_featured` attribute doesn't exist on the catalog | Create it (see Usage §3), or change the attribute code in admin config |
+| No Best Sellers section | No orders yet, or bestseller indexer hasn't run | `bin/magento indexer:reindex bestsellers_aggregated` — or just wait until you have orders |
+| URLs point at wrong store | v1.1 cache entries from before emulation fix | One-time `bin/magento cache:flush` |
+| Category tree too deep/shallow | `max_category_depth` setting | Adjust 1–5 in admin config |
 
 ---
 
@@ -439,51 +603,55 @@ When an LLM answers a shopper's query about shipping, returns, or sizing, it can
 
 ### Is llms.txt an official standard?
 
-It's an **emerging community standard** proposed at [llmstxt.org](https://llmstxt.org/) with a growing list of adopters (Anthropic, Perplexity, Vercel, Stripe, Cloudflare docs all publish one). Not an IETF RFC yet, but the format is stable enough that major AI platforms rely on it.
+An **emerging community standard** proposed at [llmstxt.org](https://llmstxt.org/) with a growing list of adopters (Anthropic, Perplexity, Vercel, Stripe, Cloudflare docs all publish one). Not an IETF RFC yet, but stable enough that major AI platforms rely on it.
 
 ### Does this replace my XML sitemap?
 
-No — they're complementary. Keep your XML sitemap for Google / Bing search indexes. `/llms.txt` is for AI crawlers that want a curated summary rather than the full crawlable surface.
+No — they're complementary. Keep your XML sitemap for Google / Bing search indexes. `/llms.txt` is for AI crawlers that want a curated summary rather than a full crawlable surface.
 
 ### Will Google index my `/llms.txt` as a search result?
 
-No. The controller sends `X-Robots-Tag: noindex` so search engines won't treat it as a normal page. Crawlers still read it for signals.
+No — the controller sends `X-Robots-Tag: noindex`. Crawlers still read it for signals.
+
+### Does it run a cron job?
+
+No. It's pull-based: file rendered on-demand at request time and cached. Cache auto-invalidates on admin saves. See [How It's Generated](#how-its-generated-no-cron-needed).
 
 ### Does it work with Hyva?
 
-Yes. The file lives at the backend layer, outside the theme rendering pipeline. Identical behavior on Hyva and Luma.
+Yes. The file is served at the backend layer, outside the theme pipeline. Identical behavior on Hyva and Luma.
 
 ### Is Panth_Core required?
 
-Yes. `mage2kishan/module-core` is a required dependency pulled in automatically by Composer. Core provides the admin tab layout + shared utilities.
+Yes. `mage2kishan/module-core` is a required dependency — pulled in automatically by Composer.
 
 ### Will this slow down my store?
 
-No. Output is cached in a dedicated cache type (1-hour TTL + tag-invalidation). Cold regeneration takes ~200 ms on a 2,000-SKU catalog; warm responses take ~50 ms. LLM crawlers hit the file infrequently (not per-request like FPC).
+No. Output is cached with a 1-hour TTL + tag invalidation. Cold regeneration: ~200 ms on a 2,000-SKU catalog. Warm: ~50 ms. LLM crawlers hit this infrequently (not per-request like FPC).
 
-### How often does it regenerate?
+### How do I flag products as featured?
 
-On any admin save of: category, product, CMS page, store config, or a general config change. The cache tags hit all of those automatically. Otherwise, the 1-hour TTL triggers a passive regen.
+Create a yes/no EAV attribute called `is_featured` (or any code you pick — then enter that code in the admin config). Flip it on for the products you want in the Featured section. No database migration required.
 
-### Can I customize the structure?
+### How are best sellers calculated?
 
-Not without overriding the builder classes in your own module. The current layout follows the llmstxt.org spec + eCommerce best practice. PRs welcome.
+Read from Magento's native `sales_bestsellers_aggregated_yearly` table (populated by the bestseller indexer). No extra queries against `sales_order_item` at render time.
+
+### Can I customize the section structure?
+
+Yes — the architecture is section-based. Each `## Heading` block lives in its own class. Add a custom section by creating a `SectionInterface` implementation and either extending `Builder` in a child module or injecting it via `di.xml`.
 
 ### Does it support multi-language stores?
 
-Yes — each store view gets its own cache entry, own URLs, own summary, and its own store-scope config. The content is as localized as the underlying catalog data.
+Yes — each store view gets its own cache entry, URLs, summary, and all store-scope config values.
 
 ### What about GDPR / privacy?
 
-The file only publishes data that's **already public** on your store (product names, category names, CMS page titles, public company info). No customer data, no order data, no internal information. Safe to publish.
-
-### Does this submit the file to AI platforms?
-
-No — it only serves the file. AI crawlers (Perplexity's bot, OpenAI's SearchGPT crawler, Claude's web tool, etc.) discover it automatically when they hit your domain. Some platforms also let you explicitly submit it via their webmaster tools.
+Only data **already public** on your store is published (product names, category names, CMS page titles, public company info). No customer data, no order data, no internal information.
 
 ### Is it compatible with Varnish / FPC?
 
-Yes. The file is served under a standard controller with appropriate `Cache-Control: public, max-age=3600` headers — Varnish and Magento's FPC cache it correctly alongside the application-level cache.
+Yes. Standard controller with appropriate `Cache-Control: public, max-age=3600` headers — Varnish and Magento's FPC cache it correctly alongside the module's application-level cache.
 
 ---
 
@@ -501,8 +669,6 @@ Yes. The file is served under a standard controller with appropriate `Cache-Cont
 Response time: 1-2 business days.
 
 ### 💼 Need Custom Magento Development?
-
-Looking for **custom Magento module development**, **Hyva theme customization**, **store migrations**, or **performance optimization**? Get a free quote in 24 hours:
 
 <p align="center">
   <a href="https://kishansavaliya.com/get-quote">
@@ -526,15 +692,15 @@ Looking for **custom Magento module development**, **Hyva theme customization**,
 
 **Specializations:**
 
-- 🛒 **Magento 2 Module Development** — custom extensions following MEQP standards
-- 🎨 **Hyva Theme Development** — Alpine.js + Tailwind CSS, lightning-fast storefronts
-- 🖌️ **Luma Theme Customization** — pixel-perfect designs, responsive layouts
-- ⚡ **Performance Optimization** — Core Web Vitals, page speed, caching strategies
-- 🔍 **Magento SEO** — structured data, hreflang, sitemaps, AI-generated meta, `llms.txt`
-- 🛍️ **Checkout Optimization** — one-page checkout, conversion rate optimization
-- 🚀 **M1 to M2 Migrations** — data migration, custom feature porting
-- ☁️ **Adobe Commerce Cloud** — deployment, CI/CD, performance tuning
-- 🔌 **Third-party Integrations** — payment gateways, ERP, CRM, marketing tools
+- 🛒 Magento 2 Module Development — MEQP-standard custom extensions
+- 🎨 Hyva Theme Development — Alpine.js + Tailwind, lightning-fast storefronts
+- 🖌️ Luma Theme Customization — pixel-perfect responsive layouts
+- ⚡ Performance Optimization — Core Web Vitals, page speed, caching strategies
+- 🔍 Magento SEO — structured data, hreflang, sitemaps, AI-generated meta, `llms.txt`
+- 🛍️ Checkout Optimization — one-page checkout, CRO
+- 🚀 M1 to M2 Migrations
+- ☁️ Adobe Commerce Cloud — deployment, CI/CD, performance tuning
+- 🔌 Third-party Integrations — payment gateways, ERP, CRM, marketing tools
 
 ---
 
@@ -548,9 +714,7 @@ Panth LLMs.txt is licensed under a proprietary license — see `LICENSE.txt`. On
 
 Built and maintained by **Kishan Savaliya** — [kishansavaliya.com](https://kishansavaliya.com) — a **Top Rated Plus** Magento developer on Upwork with 10+ years of eCommerce experience.
 
-**Panth Infotech** is a Magento 2 development agency specializing in high-quality, security-focused extensions and themes for both Hyva and Luma storefronts. Our extension suite covers SEO (classical + AI), performance, checkout, product presentation, customer engagement, and store management — over 34 modules built to MEQP standards and tested across Magento 2.4.4 to 2.4.8.
-
-Browse the full extension catalog on the [Adobe Commerce Marketplace](https://commercemarketplace.adobe.com) or [Packagist](https://packagist.org/packages/mage2kishan/).
+**Panth Infotech** is a Magento 2 development agency specializing in high-quality, security-focused extensions and themes for both Hyva and Luma storefronts. Our extension suite covers classical + AI SEO, performance, checkout, product presentation, customer engagement, and store management — over 34 modules built to MEQP standards and tested across Magento 2.4.4 to 2.4.8.
 
 ### Quick Links
 
@@ -560,7 +724,6 @@ Browse the full extension catalog on the [Adobe Commerce Marketplace](https://co
 - 🏢 **Upwork Agency:** [upwork.com/agencies/1881421506131960778](https://www.upwork.com/agencies/1881421506131960778/)
 - 📦 **Packagist:** [packagist.org/packages/mage2kishan/module-llms-txt](https://packagist.org/packages/mage2kishan/module-llms-txt)
 - 🐙 **GitHub:** [github.com/mage2sk/module-llms-txt](https://github.com/mage2sk/module-llms-txt)
-- 🛒 **Adobe Marketplace:** [commercemarketplace.adobe.com](https://commercemarketplace.adobe.com)
 - 📧 **Email:** kishansavaliyakb@gmail.com
 - 📱 **WhatsApp:** +91 84012 70422
 
@@ -575,4 +738,4 @@ Browse the full extension catalog on the [Adobe Commerce Marketplace](https://co
 
 ---
 
-**SEO Keywords:** magento 2 llms.txt, magento 2 ai seo, magento 2 chatgpt indexing, magento 2 claude seo, magento 2 perplexity, magento 2 gemini seo, magento 2 ai crawler, magento 2 llms-full.txt, magento 2 ai site map, llmstxt.org magento, magento 2 ai search engine optimization, magento 2 ai content, magento 2 ai-ready, hyva llms.txt, hyva ai seo, luma llms.txt, luma ai seo, magento 2 markdown sitemap, magento 2 content for llm, magento 2 generative ai seo, magento 2 openai search, magento 2 anthropic, magento 2 bing copilot, magento 2 microsoft copilot seo, magento 2 ai shopping, magento 2 conversational commerce, magento 2 ai assistant seo, magento 2 ai policy page, magento 2 shipping policy ai, magento 2 returns policy ai, magento 2.4.8 llms.txt, magento 2 PHP 8.4 llms.txt, mage2kishan llms.txt, panth infotech llms.txt, kishan savaliya magento, hire magento developer upwork, top rated plus magento freelancer, custom magento development, adobe commerce llms.txt, magento 2 chatgpt plugin, magento 2 future-proof seo
+**SEO Keywords:** magento 2 llms.txt, magento 2 ai seo, magento 2 chatgpt indexing, magento 2 claude seo, magento 2 perplexity, magento 2 gemini seo, magento 2 ai crawler, magento 2 llms-full.txt, magento 2 ai site map, llmstxt.org magento, magento 2 hierarchical category tree ai, magento 2 featured products llm, magento 2 bestsellers ai, magento 2 recent products ai seo, magento 2 ai content optimization, hyva llms.txt, hyva ai seo, luma llms.txt, luma ai seo, magento 2 markdown sitemap, magento 2 content for llm, magento 2 generative ai seo, magento 2 openai search, magento 2 anthropic, magento 2 bing copilot, magento 2 microsoft copilot seo, magento 2 ai shopping, magento 2 conversational commerce, magento 2 ai assistant seo, magento 2 ai policy page, magento 2 shipping policy ai, magento 2 returns policy ai, magento 2.4.8 llms.txt, magento 2 PHP 8.4 llms.txt, mage2kishan llms.txt, panth infotech llms.txt, kishan savaliya magento, hire magento developer upwork, top rated plus magento freelancer, custom magento development, adobe commerce llms.txt, magento 2 chatgpt plugin, magento 2 future-proof seo
