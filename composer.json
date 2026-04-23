@@ -2,7 +2,7 @@
     "name": "mage2kishan/module-llms-txt",
     "description": "Panth LLMs.txt — serves /llms.txt and /llms-full.txt Markdown site maps for AI crawlers (ChatGPT, Claude, Perplexity, Gemini).",
     "type": "magento2-module",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "license": "proprietary",
     "keywords": [
         "magento2",
