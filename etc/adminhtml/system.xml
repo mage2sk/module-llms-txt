@@ -3,10 +3,11 @@
 /**
  * Panth LLMs.txt — System configuration.
  *
- * Owns its own section `panth_llms_txt` under the shared `panth` tab.
- * The v1.2 redesign adds dedicated fieldsets for Content Limits, Curated
- * Products and the expanded llms-full.txt options so the admin form
- * visually mirrors the sections that appear in the output.
+ * Owns the `panth_llms_txt` section under the shared `panth` tab.
+ * v1.3 layers on five new groups for the AI Indexing Engine
+ * (Sitemap Engine, Weighting & Ranking, Use Cases, JSON Output,
+ * Cron) on top of the existing General / Limits / Curated Products
+ * / llms-full groups so admins see one coherent surface.
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -27,7 +28,7 @@
                 </field>
                 <field id="summary" translate="label comment" type="textarea" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Site Summary</label>
-                    <comment><![CDATA[Short one-line summary of your store for the llms.txt header. Falls back to <code>design/head/default_description</code> and then a generic boilerplate if empty.]]></comment>
+                    <comment><![CDATA[Short one-line summary for the llms.txt header. Leave blank to auto-generate from store metadata (product count, top categories, currency). Falls back to <code>design/head/default_description</code> when both are empty.]]></comment>
                     <depends>
                         <field id="enabled">1</field>
                     </depends>
@@ -48,7 +49,71 @@
                 </field>
             </group>
 
-            <group id="limits" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+            <group id="sitemap" translate="label" sortOrder="15" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Sitemap Engine</label>
+                <comment><![CDATA[Pulls real sitemap data (loc / lastmod / priority) into the AI index. Supports plain <code>&lt;urlset&gt;</code> sitemaps and <code>&lt;sitemapindex&gt;</code> documents that nest one level.]]></comment>
+                <field id="urls" translate="label comment" type="textarea" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Sitemap URLs</label>
+                    <comment><![CDATA[One sitemap URL per line. Absolute (<code>https://example.com/sitemap_products.xml</code>) or relative (<code>/sitemap.xml</code>). Lines starting with <code>#</code> are treated as comments. Leave blank to use Magento's default <code>/sitemap.xml</code>.]]></comment>
+                </field>
+                <field id="auto" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Auto-detect Default Sitemap</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>When the URL list above is empty, fall back to <code>{baseUrl}sitemap.xml</code>.</comment>
+                </field>
+                <field id="render_section" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Render "Sitemap Highlights" Section</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>When on, the highest-scored sitemap rows are listed under their own section in /llms.txt and /llms-full.txt.</comment>
+                </field>
+                <field id="max_rendered" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Max Rendered Sitemap Rows</label>
+                    <validate>validate-digits</validate>
+                    <comment>Hard cap on rows rendered under "## Sitemap Highlights". Default: 50.</comment>
+                    <depends>
+                        <field id="render_section">1</field>
+                    </depends>
+                </field>
+                <field id="max_entries" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Max Parsed Sitemap Entries</label>
+                    <validate>validate-digits</validate>
+                    <comment>Upper bound on entries the parser will load into memory across all configured sitemaps. Default: 5000.</comment>
+                </field>
+                <field id="timeout" translate="label comment" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Per-request Timeout (seconds)</label>
+                    <validate>validate-digits</validate>
+                    <comment>Per-sitemap connect + read timeout. Default: 8.</comment>
+                </field>
+                <field id="ttl" translate="label comment" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Sitemap Cache TTL (seconds)</label>
+                    <validate>validate-digits</validate>
+                    <comment>How long parsed sitemap data stays cached. Default: 3600 (1 hour).</comment>
+                </field>
+            </group>
+
+            <group id="weighting" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Weighting &amp; Ranking</label>
+                <comment><![CDATA[Combines sitemap priority, admin pinned URLs and built-in business heuristics into a single 0.0 – 1.0 score per entry. Entries below the cut-off are dropped.]]></comment>
+                <field id="type_weights" translate="label comment" type="textarea" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Type Weights</label>
+                    <comment><![CDATA[<code>code=weight</code> per line, where code is one of <code>homepage</code>, <code>category</code>, <code>collection</code>, <code>product</code>, <code>cms</code>, <code>sitemap</code>, <code>external</code>. Example:<br/><code>category=0.75<br/>product=0.55</code><br/>Defaults bias toward category and CMS pages.]]></comment>
+                </field>
+                <field id="pinned_urls" translate="label comment" type="textarea" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Pinned URLs</label>
+                    <comment><![CDATA[<code>url_or_prefix=score</code> per line. Pinned values override every other signal. Wildcards: <code>/sale/*=1.0</code> pins the entire path tree.]]></comment>
+                </field>
+                <field id="min_score" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Minimum Score</label>
+                    <comment>Entries scoring below this are dropped. Default: 0.20.</comment>
+                </field>
+                <field id="max_entries_per_section" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Max Entries Per Section</label>
+                    <validate>validate-digits</validate>
+                    <comment>Per-section hard cap applied after sorting. Default: 200.</comment>
+                </field>
+            </group>
+
+            <group id="limits" translate="label" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Content Limits</label>
                 <field id="max_category_depth" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Max Category Tree Depth</label>
@@ -69,7 +134,7 @@
                 </field>
             </group>
 
-            <group id="products" translate="label" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+            <group id="products" translate="label" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Curated Products</label>
                 <field id="featured_attribute" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Featured Attribute Code</label>
@@ -120,7 +185,24 @@
                 </field>
             </group>
 
-            <group id="full" translate="label" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+            <group id="product_types" translate="label" sortOrder="45" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Product Types Section</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Render "Product Types"</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>When on, /llms.txt and /llms.json include a metadata block with counts per Magento product type (simple, configurable, bundle, …).</comment>
+                </field>
+            </group>
+
+            <group id="use_cases" translate="label" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Use Cases (Shopper Intent)</label>
+                <field id="buckets" translate="label comment" type="textarea" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Use-case Buckets</label>
+                    <comment><![CDATA[<code>Label | category_id_csv [| summary]</code> per line. Maps a shopper intent to one or more category IDs. Rendered under "## Use Cases". Examples:<br/><code>Daily Wear | 12,18,33<br/>Bridal | 41 | Hand-embroidered bridal lehengas and saris<br/>Festive | 14,27</code>]]></comment>
+                </field>
+            </group>
+
+            <group id="full" translate="label" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>llms-full.txt (Expanded)</label>
                 <field id="generate_full_llms" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enable llms-full.txt</label>
@@ -159,6 +241,24 @@
                     <depends>
                         <field id="generate_full_llms">1</field>
                     </depends>
+                </field>
+            </group>
+
+            <group id="json" translate="label" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>llms.json (Machine-readable)</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable /llms.json</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Serves a structured JSON document at /llms.json containing the same sections in a stable, machine-readable shape (schema: <code>panth.llms_txt/v1</code>).</comment>
+                </field>
+            </group>
+
+            <group id="cron" translate="label" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Cache Warm-up</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Pre-warm Caches via Cron</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>When on, the nightly cron at 02:30 regenerates llms.txt / llms-full.txt / llms.json and refreshes the parsed sitemap cache for every enabled store.</comment>
                 </field>
             </group>
         </section>

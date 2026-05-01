@@ -1,7 +1,11 @@
 <?xml version="1.0"?>
 <!--
 /**
- * Panth LLMs.txt — Default configuration values for panth_llms_txt/llms_txt.
+ * Panth LLMs.txt — Default configuration values.
+ *
+ * Defaults map 1:1 to the fields declared in etc/adminhtml/system.xml.
+ * v1.3 adds the dynamic sitemap engine, weighted ranker, JSON output
+ * and use-case grouping options on top of the v1.2 baseline.
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -29,6 +33,33 @@
                 <about_page></about_page>
                 <faq_page></faq_page>
             </llms_txt>
+            <sitemap>
+                <urls></urls>
+                <auto>1</auto>
+                <render_section>1</render_section>
+                <max_rendered>50</max_rendered>
+                <max_entries>5000</max_entries>
+                <timeout>8</timeout>
+                <ttl>3600</ttl>
+            </sitemap>
+            <weighting>
+                <type_weights></type_weights>
+                <pinned_urls></pinned_urls>
+                <min_score>0.20</min_score>
+                <max_entries_per_section>200</max_entries_per_section>
+            </weighting>
+            <product_types>
+                <enabled>1</enabled>
+            </product_types>
+            <use_cases>
+                <buckets></buckets>
+            </use_cases>
+            <json>
+                <enabled>1</enabled>
+            </json>
+            <cron>
+                <enabled>1</enabled>
+            </cron>
         </panth_llms_txt>
     </default>
 </config>

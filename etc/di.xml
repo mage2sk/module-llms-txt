@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Panth LLMs.txt — DI wiring.
+ *
+ * Binds the public Api\* service contracts to their concrete
+ * implementations so third-party modules can swap in alternate
+ * sitemap fetchers, ranking algorithms or section providers without
+ * touching this module's source.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Panth\LlmsTxt\Api\Data\SitemapEntryInterface"
+                type="Panth\LlmsTxt\Model\Sitemap\Entry"/>
+    <preference for="Panth\LlmsTxt\Api\Data\IndexEntryInterface"
+                type="Panth\LlmsTxt\Model\Index\Entry"/>
+    <preference for="Panth\LlmsTxt\Api\SitemapFetcherInterface"
+                type="Panth\LlmsTxt\Model\Sitemap\Fetcher"/>
+    <preference for="Panth\LlmsTxt\Api\WeightedRankerInterface"
+                type="Panth\LlmsTxt\Model\Ranker\WeightedRanker"/>
+</config>

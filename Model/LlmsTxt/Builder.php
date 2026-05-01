@@ -19,7 +19,11 @@ use Panth\LlmsTxt\Model\LlmsTxt\Section\Collections;
 use Panth\LlmsTxt\Model\LlmsTxt\Section\KeyPages;
 use Panth\LlmsTxt\Model\LlmsTxt\Section\Overview;
 use Panth\LlmsTxt\Model\LlmsTxt\Section\PriorityUrls;
+use Panth\LlmsTxt\Model\LlmsTxt\Section\ProductTypes;
 use Panth\LlmsTxt\Model\LlmsTxt\Section\Products;
+use Panth\LlmsTxt\Model\LlmsTxt\Section\Sitemap;
+use Panth\LlmsTxt\Model\LlmsTxt\Section\UseCases;
+use Panth\LlmsTxt\Model\Summary\SummaryGenerator;
 
 /**
  * Builds `/llms.txt` — the compact LLM-oriented Markdown site map.
@@ -54,7 +58,7 @@ class Builder
      * Schema version — bump to force cache invalidation when the output
      * format changes without a manual flush.
      */
-    private const SCHEMA_VERSION = 'v3';
+    private const SCHEMA_VERSION = 'v4';
 
     /**
      * Cache TTL upper bound. Tag invalidation overrides this on admin
@@ -72,7 +76,11 @@ class Builder
         private readonly Collections $collections,
         private readonly KeyPages $keyPages,
         private readonly CategoryTree $categoryTree,
-        private readonly Products $products
+        private readonly Products $products,
+        private readonly ProductTypes $productTypes,
+        private readonly UseCases $useCases,
+        private readonly Sitemap $sitemap,
+        private readonly SummaryGenerator $summaryGenerator
     ) {
     }
 
@@ -88,7 +96,11 @@ class Builder
             return $hit;
         }
 
-        $this->appEmulation->startEnvironmentEmulation($storeId, Area::AREA_FRONTEND, true);
+        try {
+            $this->appEmulation->startEnvironmentEmulation($storeId, Area::AREA_FRONTEND, true);
+        } catch (\Throwable $e) {
+            return "# llms.txt\n\nStore not available.\n";
+        }
         try {
             $body = $this->renderBody($storeId);
         } finally {
@@ -155,20 +167,28 @@ class Builder
         foreach ($this->collections->render($storeId) as $l)      { $lines[] = $l; }
         foreach ($this->keyPages->render($storeId) as $l)         { $lines[] = $l; }
 
-        // Taxonomy
+        // Taxonomy + product type metadata + shopper-intent buckets
         foreach ($this->categoryTree->render($storeId) as $l)     { $lines[] = $l; }
+        foreach ($this->productTypes->render($storeId) as $l)     { $lines[] = $l; }
+        foreach ($this->useCases->render($storeId) as $l)         { $lines[] = $l; }
 
         // Curated product blocks
         foreach ($this->products->renderFeatured($storeId) as $l)    { $lines[] = $l; }
         foreach ($this->products->renderBestsellers($storeId) as $l) { $lines[] = $l; }
         foreach ($this->products->renderRecent($storeId) as $l)      { $lines[] = $l; }
 
-        // Sitemap footer
-        $lines[] = '## Sitemaps';
+        // Sitemap-derived URL highlights (ranked)
+        foreach ($this->sitemap->render($storeId) as $l)             { $lines[] = $l; }
+
+        // Sitemap footer — pointers to alternate AI index formats and the
+        // canonical Magento sitemap / robots so a crawler that wants to go
+        // deeper has the entry points it needs.
+        $lines[] = '## Index Formats';
         $lines[] = '';
         $lines[] = '- ' . $baseUrl . 'sitemap.xml';
         $lines[] = '- ' . $baseUrl . 'robots.txt';
         $lines[] = '- ' . $baseUrl . 'llms-full.txt';
+        $lines[] = '- ' . $baseUrl . 'llms.json';
         $lines[] = '';
 
         return implode("\n", $lines);
@@ -189,14 +209,24 @@ class Builder
     }
 
     /**
-     * Summary fallback chain: admin textarea → design/head/default_description
-     * → boilerplate.
+     * Summary fallback chain: admin textarea → auto-generated from
+     * store metadata → design/head/default_description → boilerplate.
+     *
+     * The auto-generation tier was added in v1.3 so an out-of-the-box
+     * install produces a meaningful one-line summary ("Acme Store
+     * offers 1,240 products across categories such as Tops, Bottoms
+     * and Accessories priced in USD.") without the merchant having
+     * to author one manually.
      */
     private function resolveSummary(int $storeId): string
     {
         $summary = (string) $this->scopeConfig->getValue(self::XML_SUMMARY, ScopeInterface::SCOPE_STORE, $storeId);
         if ($summary !== '') {
             return $summary;
+        }
+        $auto = $this->summaryGenerator->generateStoreSummary($storeId);
+        if ($auto !== '') {
+            return $auto;
         }
         $head = (string) $this->scopeConfig->getValue('design/head/default_description', ScopeInterface::SCOPE_STORE, $storeId);
         if ($head !== '') {

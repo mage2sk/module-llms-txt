@@ -10,12 +10,14 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
-    <module name="Panth_LlmsTxt" setup_version="1.0.0">
+    <module name="Panth_LlmsTxt" setup_version="1.3.0">
         <sequence>
             <module name="Panth_Core"/>
             <module name="Magento_Catalog"/>
             <module name="Magento_Cms"/>
             <module name="Magento_UrlRewrite"/>
+            <module name="Magento_Cron"/>
+            <module name="Magento_Sales"/>
         </sequence>
     </module>
 </config>

@@ -22,7 +22,11 @@ use Panth\LlmsTxt\Model\LlmsTxt\Section\Collections;
 use Panth\LlmsTxt\Model\LlmsTxt\Section\KeyPages;
 use Panth\LlmsTxt\Model\LlmsTxt\Section\Overview;
 use Panth\LlmsTxt\Model\LlmsTxt\Section\PriorityUrls;
+use Panth\LlmsTxt\Model\LlmsTxt\Section\ProductTypes;
 use Panth\LlmsTxt\Model\LlmsTxt\Section\Products;
+use Panth\LlmsTxt\Model\LlmsTxt\Section\Sitemap;
+use Panth\LlmsTxt\Model\LlmsTxt\Section\UseCases;
+use Panth\LlmsTxt\Model\Summary\SummaryGenerator;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -45,7 +49,7 @@ class FullBuilder
     public const XML_FAQ_PAGE      = 'panth_llms_txt/llms_txt/faq_page';
     public const XML_SUMMARY       = 'panth_llms_txt/llms_txt/summary';
 
-    private const SCHEMA_VERSION  = 'v3';
+    private const SCHEMA_VERSION  = 'v4';
     private const CACHE_LIFETIME  = 3600;
 
     public function __construct(
@@ -62,7 +66,11 @@ class FullBuilder
         private readonly Collections $collections,
         private readonly KeyPages $keyPages,
         private readonly CategoryTree $categoryTree,
-        private readonly Products $products
+        private readonly Products $products,
+        private readonly ProductTypes $productTypes,
+        private readonly UseCases $useCases,
+        private readonly Sitemap $sitemap,
+        private readonly SummaryGenerator $summaryGenerator
     ) {
     }
 
@@ -74,7 +82,11 @@ class FullBuilder
             return $hit;
         }
 
-        $this->appEmulation->startEnvironmentEmulation($storeId, Area::AREA_FRONTEND, true);
+        try {
+            $this->appEmulation->startEnvironmentEmulation($storeId, Area::AREA_FRONTEND, true);
+        } catch (\Throwable $e) {
+            return "# llms-full.txt\n\nStore not available.\n";
+        }
         try {
             $body = $this->renderBody($storeId);
         } finally {
@@ -118,6 +130,9 @@ class FullBuilder
         $title   = ($brand !== '' ? $brand : (string) $store->getName()) . ' (Full)';
         $summary = (string) $this->scopeValue(self::XML_SUMMARY, $storeId);
         if ($summary === '') {
+            $summary = $this->summaryGenerator->generateStoreSummary($storeId);
+        }
+        if ($summary === '') {
             $summary = (string) $this->scopeValue('design/head/default_description', $storeId);
         }
         if ($summary === '') {
@@ -137,20 +152,24 @@ class FullBuilder
         foreach ($this->collections->render($storeId) as $l)        { $lines[] = $l; }
         foreach ($this->keyPages->render($storeId) as $l)           { $lines[] = $l; }
         foreach ($this->categoryTree->render($storeId) as $l)       { $lines[] = $l; }
+        foreach ($this->productTypes->render($storeId) as $l)       { $lines[] = $l; }
+        foreach ($this->useCases->render($storeId) as $l)           { $lines[] = $l; }
         foreach ($this->products->renderFeatured($storeId) as $l)   { $lines[] = $l; }
         foreach ($this->products->renderBestsellers($storeId) as $l){ $lines[] = $l; }
         foreach ($this->products->renderRecent($storeId) as $l)     { $lines[] = $l; }
+        foreach ($this->sitemap->render($storeId) as $l)            { $lines[] = $l; }
 
         $this->appendPolicy($lines, 'Shipping Policy',             self::XML_SHIPPING_PAGE, $storeId);
         $this->appendPolicy($lines, 'Return Policy',               self::XML_RETURNS_PAGE, $storeId);
         $this->appendPolicy($lines, 'Frequently Asked Questions',  self::XML_FAQ_PAGE, $storeId);
 
-        // Sitemap footer
-        $lines[] = '## Sitemaps';
+        // Index format pointers
+        $lines[] = '## Index Formats';
         $lines[] = '';
         $lines[] = '- ' . $baseUrl . 'sitemap.xml';
         $lines[] = '- ' . $baseUrl . 'robots.txt';
         $lines[] = '- ' . $baseUrl . 'llms.txt';
+        $lines[] = '- ' . $baseUrl . 'llms.json';
         $lines[] = '';
 
         return implode("\n", $lines);

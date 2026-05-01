@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Panth LLMs.txt — cron schedule.
+ *
+ * Pre-warms the AI index caches (llms.txt / llms-full.txt / llms.json)
+ * and the upstream sitemap parse cache for every enabled store view
+ * once a day. Aligns the regenerate window with the typical Magento
+ * indexer / sitemap re-run schedule so a fresh /llms.txt is sitting
+ * in cache by the time the next morning's crawler hits.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    <group id="default">
+        <job name="panth_llms_txt_warm_cache"
+             instance="Panth\LlmsTxt\Cron\WarmCache"
+             method="execute">
+            <schedule>30 2 * * *</schedule>
+        </job>
+    </group>
+</config>

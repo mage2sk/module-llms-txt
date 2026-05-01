@@ -28,6 +28,7 @@ class InstallLlmsFullUrlRewrite implements DataPatchInterface
     private const REWRITES = [
         'llms.txt'      => 'panth_llms/llms/index',
         'llms-full.txt' => 'panth_llms/llms/full',
+        'llms.json'     => 'panth_llms/llms/json',
     ];
 
     /**
