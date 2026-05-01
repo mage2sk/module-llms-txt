@@ -13,6 +13,7 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\App\Emulation as AppEmulation;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
+use Panth\LlmsTxt\Api\SitemapFetcherInterface;
 use Panth\LlmsTxt\Model\Cache\Type as LlmsCache;
 use Panth\LlmsTxt\Model\LlmsTxt\Section\CategoryTree;
 use Panth\LlmsTxt\Model\LlmsTxt\Section\Collections;
@@ -58,7 +59,7 @@ class Builder
      * Schema version — bump to force cache invalidation when the output
      * format changes without a manual flush.
      */
-    private const SCHEMA_VERSION = 'v4';
+    private const SCHEMA_VERSION = 'v5';
 
     /**
      * Cache TTL upper bound. Tag invalidation overrides this on admin
@@ -80,7 +81,8 @@ class Builder
         private readonly ProductTypes $productTypes,
         private readonly UseCases $useCases,
         private readonly Sitemap $sitemap,
-        private readonly SummaryGenerator $summaryGenerator
+        private readonly SummaryGenerator $summaryGenerator,
+        private readonly SitemapFetcherInterface $sitemapFetcher
     ) {
     }
 
@@ -180,12 +182,20 @@ class Builder
         // Sitemap-derived URL highlights (ranked)
         foreach ($this->sitemap->render($storeId) as $l)             { $lines[] = $l; }
 
-        // Sitemap footer — pointers to alternate AI index formats and the
-        // canonical Magento sitemap / robots so a crawler that wants to go
-        // deeper has the entry points it needs.
+        // Sitemap footer — pointers to alternate AI index formats and
+        // the canonical Magento sitemap(s) / robots so a crawler that
+        // wants to go deeper has the entry points it needs.
+        //
+        // The sitemap line(s) come from SitemapFetcher::getSitemapUrls()
+        // which honours the merchant's panth_llms_txt/sitemap/urls
+        // textarea — so a custom split sitemap (sitemap_products.xml,
+        // sitemap_categories.xml, etc.) is listed verbatim instead of
+        // the wrong-by-default {baseUrl}sitemap.xml.
         $lines[] = '## Index Formats';
         $lines[] = '';
-        $lines[] = '- ' . $baseUrl . 'sitemap.xml';
+        foreach ($this->sitemapFetcher->getSitemapUrls($storeId) as $sitemapUrl) {
+            $lines[] = '- ' . $sitemapUrl;
+        }
         $lines[] = '- ' . $baseUrl . 'robots.txt';
         $lines[] = '- ' . $baseUrl . 'llms-full.txt';
         $lines[] = '- ' . $baseUrl . 'llms.json';

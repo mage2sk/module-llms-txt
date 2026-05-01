@@ -33,4 +33,18 @@ interface SitemapFetcherInterface
      * @return SitemapEntryInterface[]
      */
     public function fetchForStore(int $storeId): array;
+
+    /**
+     * Return the resolved list of sitemap source URLs for the store —
+     * the merchant's configured `panth_llms_txt/sitemap/urls` lines
+     * plus the `{baseUrl}sitemap.xml` auto-fallback when both the
+     * field is empty and auto-detection is enabled.
+     *
+     * Implementations MUST resolve relative entries against the store
+     * base URL so the returned list is always absolute.
+     *
+     * @param int $storeId
+     * @return string[]
+     */
+    public function getSitemapUrls(int $storeId): array;
 }

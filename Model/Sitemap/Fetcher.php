@@ -128,6 +128,21 @@ class Fetcher implements SitemapFetcherInterface
     }
 
     /**
+     * Public accessor for the resolved sitemap URL list. Used by
+     * Builder / FullBuilder / JsonBuilder when rendering the
+     * "Index Formats" / sitemap footer so the listed URLs match
+     * exactly what the merchant configured (no more hard-coded
+     * `{baseUrl}sitemap.xml` when the merchant runs custom shards
+     * elsewhere).
+     *
+     * @return string[]
+     */
+    public function getSitemapUrls(int $storeId): array
+    {
+        return $this->resolveSitemapUrls($storeId);
+    }
+
+    /**
      * Resolve the merchant's configured sitemap list with fallback to
      * `{baseUrl}sitemap.xml` when "auto" mode is on and no URLs are set.
      *

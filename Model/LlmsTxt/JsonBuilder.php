@@ -184,6 +184,11 @@ class JsonBuilder
             ],
             'sections'     => array_map([$this, 'serialiseSection'], $sections),
             'sitemap'      => [
+                // Source URLs the merchant configured in
+                // panth_llms_txt/sitemap/urls (resolved + de-duped),
+                // surfaced here so headless integrations know which
+                // sitemaps to crawl in addition to /llms.json.
+                'sources' => $this->sitemapFetcher->getSitemapUrls($storeId),
                 'count'   => count($sitemapEntries),
                 'entries' => array_map([$this, 'serialiseEntry'], $sitemapEntries),
             ],

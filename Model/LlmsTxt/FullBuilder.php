@@ -16,6 +16,7 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\App\Emulation as AppEmulation;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
+use Panth\LlmsTxt\Api\SitemapFetcherInterface;
 use Panth\LlmsTxt\Model\Cache\Type as LlmsCache;
 use Panth\LlmsTxt\Model\LlmsTxt\Section\CategoryTree;
 use Panth\LlmsTxt\Model\LlmsTxt\Section\Collections;
@@ -49,7 +50,7 @@ class FullBuilder
     public const XML_FAQ_PAGE      = 'panth_llms_txt/llms_txt/faq_page';
     public const XML_SUMMARY       = 'panth_llms_txt/llms_txt/summary';
 
-    private const SCHEMA_VERSION  = 'v4';
+    private const SCHEMA_VERSION  = 'v5';
     private const CACHE_LIFETIME  = 3600;
 
     public function __construct(
@@ -70,7 +71,8 @@ class FullBuilder
         private readonly ProductTypes $productTypes,
         private readonly UseCases $useCases,
         private readonly Sitemap $sitemap,
-        private readonly SummaryGenerator $summaryGenerator
+        private readonly SummaryGenerator $summaryGenerator,
+        private readonly SitemapFetcherInterface $sitemapFetcher
     ) {
     }
 
@@ -163,10 +165,14 @@ class FullBuilder
         $this->appendPolicy($lines, 'Return Policy',               self::XML_RETURNS_PAGE, $storeId);
         $this->appendPolicy($lines, 'Frequently Asked Questions',  self::XML_FAQ_PAGE, $storeId);
 
-        // Index format pointers
+        // Index format pointers — sitemap line(s) follow the merchant's
+        // panth_llms_txt/sitemap/urls config so split sitemaps land
+        // here exactly as authored.
         $lines[] = '## Index Formats';
         $lines[] = '';
-        $lines[] = '- ' . $baseUrl . 'sitemap.xml';
+        foreach ($this->sitemapFetcher->getSitemapUrls($storeId) as $sitemapUrl) {
+            $lines[] = '- ' . $sitemapUrl;
+        }
         $lines[] = '- ' . $baseUrl . 'robots.txt';
         $lines[] = '- ' . $baseUrl . 'llms.txt';
         $lines[] = '- ' . $baseUrl . 'llms.json';
@@ -237,18 +243,87 @@ class FullBuilder
         return $this->stripHtml($content);
     }
 
+    /**
+     * Convert raw CMS HTML into clean plain text suitable for the
+     * `## About Us` / `## Shipping Policy` / `## Returns` / `## FAQ`
+     * sections of /llms-full.txt.
+     *
+     * The pre-v1.3.1 implementation used `strip_tags()` on its own,
+     * which removes the tag BUT NOT the tag's content. CMS pages
+     * built with PageBuilder often inline a `<style>...rules...</style>`
+     * or `<script>...js...</script>` block at the top, and the rules
+     * + JS leaked verbatim into /llms-full.txt as raw text — adding
+     * tens of kilobytes of noise that is worse than useless to an LLM
+     * crawler.
+     *
+     * The pipeline now is:
+     *
+     *   1. Drop `<style>`, `<script>`, `<noscript>`, `<svg>`, `<head>`,
+     *      `<iframe>` and `<template>` blocks ENTIRELY (tag + body).
+     *   2. Drop HTML comments `<!-- ... -->`.
+     *   3. Convert structural tags (`<br>`, `<p>`, `<div>`, …) into
+     *      newlines so paragraph boundaries survive.
+     *   4. Run `strip_tags()` for everything else.
+     *   5. Decode HTML entities + collapse runs of spaces / blank
+     *      lines so the output reads as a normal text document.
+     *
+     * The result is roughly 1/10 the size of the previous output on a
+     * typical PageBuilder About Us page and contains only the
+     * merchant's prose.
+     */
     private function stripHtml(string $html): string
     {
         if ($html === '') {
             return '';
         }
+
+        // Strip whole-block elements (tag + content). The `is`
+        // modifier lets `.` cross newlines so multi-line <style>
+        // bodies are matched in one go.
+        $blockTags = ['style', 'script', 'noscript', 'svg', 'head', 'iframe', 'template'];
+        foreach ($blockTags as $tag) {
+            $html = (string) preg_replace('#<' . $tag . '\b[^>]*>.*?</' . $tag . '>#is', '', $html);
+            // Self-closing / orphan opening tags get nuked too so a
+            // malformed CMS page doesn't carry the tail.
+            $html = (string) preg_replace('#<' . $tag . '\b[^>]*/?>#i', '', $html);
+        }
+
+        // Drop HTML comments.
+        $html = (string) preg_replace('/<!--.*?-->/s', '', $html);
+
+        // Preserve structural breaks so paragraphs do not collapse
+        // into a single line of text.
         $html = (string) preg_replace('/<br\s*\/?>/i', "\n", $html);
-        $html = (string) preg_replace('/<\/(p|div|li|tr|h[1-6])>/i', "\n", $html);
+        $html = (string) preg_replace('/<\/(p|div|li|tr|h[1-6]|section|article|header|footer|aside|nav)>/i', "\n", $html);
+
         $text = strip_tags($html);
         $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-        $text = (string) preg_replace('/[ \t]+/', ' ', $text);
-        $text = (string) preg_replace('/\n{3,}/', "\n\n", $text);
-        return trim($text);
+
+        // Trim each line then collapse interior runs of whitespace.
+        $lines = preg_split('/\R/', $text) ?: [];
+        $lines = array_map(static fn (string $l): string => trim((string) preg_replace('/[ \t]+/', ' ', $l)), $lines);
+
+        // Drop leading/trailing blank lines and collapse 3+ blank
+        // lines down to 1 blank line.
+        $clean = [];
+        $blankRun = 0;
+        foreach ($lines as $line) {
+            if ($line === '') {
+                $blankRun++;
+                if ($clean === [] || $blankRun > 1) {
+                    continue;
+                }
+                $clean[] = '';
+            } else {
+                $blankRun = 0;
+                $clean[] = $line;
+            }
+        }
+        // Drop trailing empties.
+        while ($clean !== [] && end($clean) === '') {
+            array_pop($clean);
+        }
+        return implode("\n", $clean);
     }
 
     private function scopeValue(string $path, int $storeId): mixed
