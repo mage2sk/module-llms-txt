@@ -95,7 +95,7 @@ class OptionalIntegrations
             return [];
         }
 
-        $base = trim((string) ($this->scopeConfig->getValue('panth_testimonials/general/base_url', ScopeInterface::SCOPE_STORE, $storeId)
+        $base = trim((string) ($this->scopeConfig->getValue('panth_testimonials/general/route', ScopeInterface::SCOPE_STORE, $storeId)
             ?: 'testimonials'), '/') ?: 'testimonials';
         $listing = $baseUrl . $base;
 

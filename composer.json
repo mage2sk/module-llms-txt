@@ -2,7 +2,7 @@
     "name": "mage2kishan/module-llms-txt",
     "description": "Panth LLMs.txt — AI Indexing Engine for Magento 2. Serves structured /llms.txt, /llms-full.txt and /llms.json with a dynamic multi-URL sitemap engine, weighted ranking, auto-generated summaries, product-type and use-case grouping, and cron-based cache warm-up. Built for ChatGPT, Claude, Perplexity, Gemini and future LLM crawlers.",
     "type": "magento2-module",
-    "version": "1.3.2",
+    "version": "1.3.3",
     "license": "proprietary",
     "keywords": [
         "magento2",

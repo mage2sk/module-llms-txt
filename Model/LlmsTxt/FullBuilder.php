@@ -51,7 +51,7 @@ class FullBuilder
     public const XML_FAQ_PAGE      = 'panth_llms_txt/llms_txt/faq_page';
     public const XML_SUMMARY       = 'panth_llms_txt/llms_txt/summary';
 
-    private const SCHEMA_VERSION  = 'v6';
+    private const SCHEMA_VERSION  = 'v7';
     private const CACHE_LIFETIME  = 3600;
 
     public function __construct(

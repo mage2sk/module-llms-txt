@@ -533,7 +533,7 @@ class StructuredIndex
             return [];
         }
 
-        $base = trim((string) ($this->scopeConfig->getValue('panth_testimonials/general/base_url', ScopeInterface::SCOPE_STORE, $storeId)
+        $base = trim((string) ($this->scopeConfig->getValue('panth_testimonials/general/route', ScopeInterface::SCOPE_STORE, $storeId)
             ?: 'testimonials'), '/') ?: 'testimonials';
         $base = rtrim($baseUrl, '/') . '/' . $base;
 

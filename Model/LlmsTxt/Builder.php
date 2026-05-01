@@ -60,7 +60,7 @@ class Builder
      * Schema version — bump to force cache invalidation when the output
      * format changes without a manual flush.
      */
-    private const SCHEMA_VERSION = 'v6';
+    private const SCHEMA_VERSION = 'v7';
 
     /**
      * Cache TTL upper bound. Tag invalidation overrides this on admin
