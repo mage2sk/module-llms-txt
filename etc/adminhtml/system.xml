@@ -261,6 +261,26 @@
                     <comment>When on, the nightly cron at 02:30 regenerates llms.txt / llms-full.txt / llms.json and refreshes the parsed sitemap cache for every enabled store.</comment>
                 </field>
             </group>
+
+            <group id="optional" translate="label" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Optional Integrations</label>
+                <comment><![CDATA[Surface entities from sister Panth modules in /llms.txt and /llms.json. Each integration is conditional on the source module being installed — if the module is missing the toggle has no effect (the section silently renders nothing).]]></comment>
+                <field id="include_testimonials" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Include Testimonials</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Adds approved testimonial categories and individual testimonial pages from Panth_Testimonials.</comment>
+                </field>
+                <field id="include_faqs" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Include FAQs</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Adds FAQ categories and individual FAQ items (with url_key) from Panth_Faq.</comment>
+                </field>
+                <field id="include_dynamic_forms" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Include Dynamic Forms</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Adds page-type dynamic forms from Panth_DynamicForms (skips widget-only forms).</comment>
+                </field>
+            </group>
         </section>
     </system>
 </config>

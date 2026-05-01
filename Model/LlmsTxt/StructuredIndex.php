@@ -16,6 +16,7 @@ use Magento\Cms\Api\PageRepositoryInterface;
 use Magento\Cms\Helper\Page as CmsPageHelper;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\ResourceConnection;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Panth\LlmsTxt\Api\Data\IndexEntryInterface;
@@ -60,6 +61,7 @@ class StructuredIndex
         private readonly CmsPageHelper $cmsPageHelper,
         private readonly SummaryGenerator $summaryGenerator,
         private readonly WeightedRankerInterface $ranker,
+        private readonly ResourceConnection $resourceConnection,
         private readonly LoggerInterface $logger
     ) {
     }
@@ -138,6 +140,42 @@ class StructuredIndex
                 'summary' => $this->productSectionSummary($cfg['code']),
                 'entries' => $this->ranker->rank($entries, $storeId),
             ];
+        }
+
+        // Optional integrations — surfaced only when the source
+        // module is installed (table-existence check).
+        if ($this->flag('panth_llms_txt/optional/include_testimonials', $storeId, true)) {
+            $entries = $this->testimonialEntries($storeId, $baseUrl);
+            if ($entries !== []) {
+                $sections[] = [
+                    'code'    => 'testimonials',
+                    'label'   => 'Testimonials',
+                    'summary' => 'Approved customer testimonials and category landing pages — useful when an AI assistant needs social proof for buying decisions.',
+                    'entries' => $this->ranker->rank($entries, $storeId),
+                ];
+            }
+        }
+        if ($this->flag('panth_llms_txt/optional/include_faqs', $storeId, true)) {
+            $entries = $this->faqEntries($storeId, $baseUrl);
+            if ($entries !== []) {
+                $sections[] = [
+                    'code'    => 'faqs',
+                    'label'   => 'FAQs',
+                    'summary' => 'Merchant-authored questions and answers — direct grounding material for AI assistants answering customer questions.',
+                    'entries' => $this->ranker->rank($entries, $storeId),
+                ];
+            }
+        }
+        if ($this->flag('panth_llms_txt/optional/include_dynamic_forms', $storeId, true)) {
+            $entries = $this->dynamicFormEntries($storeId, $baseUrl);
+            if ($entries !== []) {
+                $sections[] = [
+                    'code'    => 'forms',
+                    'label'   => 'Forms',
+                    'summary' => 'Public form pages — quotes, callbacks, custom enquiries — that crawlers should know exist.',
+                    'entries' => $this->ranker->rank($entries, $storeId),
+                ];
+            }
         }
 
         return $sections;
@@ -461,5 +499,276 @@ class StructuredIndex
             return $default;
         }
         return max(0, (int) $raw);
+    }
+
+    private function flag(string $path, int $storeId, bool $default): bool
+    {
+        $raw = $this->scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE, $storeId);
+        if ($raw === null || $raw === '') {
+            return $default;
+        }
+        return (bool) (int) $raw;
+    }
+
+    /**
+     * Testimonials integration — emits IndexEntries for testimonial
+     * categories and approved testimonials. Returns [] when the
+     * source module isn't installed (no panth_testimonial / panth_testimonial_category
+     * tables).
+     *
+     * @return IndexEntryInterface[]
+     */
+    private function testimonialEntries(int $storeId, string $baseUrl): array
+    {
+        try {
+            $conn = $this->resourceConnection->getConnection();
+        } catch (\Throwable) {
+            return [];
+        }
+        $itemTable = $this->resourceConnection->getTableName('panth_testimonial');
+        $catTable  = $this->resourceConnection->getTableName('panth_testimonial_category');
+        $hasItems  = $conn->isTableExists($itemTable);
+        $hasCats   = $conn->isTableExists($catTable);
+        if (!$hasItems && !$hasCats) {
+            return [];
+        }
+
+        $base = trim((string) ($this->scopeConfig->getValue('panth_testimonials/general/base_url', ScopeInterface::SCOPE_STORE, $storeId)
+            ?: 'testimonials'), '/') ?: 'testimonials';
+        $base = rtrim($baseUrl, '/') . '/' . $base;
+
+        $entries = [];
+        if ($hasCats) {
+            try {
+                $cols = $conn->describeTable($catTable);
+                $select = $conn->select()
+                    ->from($catTable, ['url_key', 'name'])
+                    ->where('is_active = ?', 1)
+                    ->where('url_key IS NOT NULL')
+                    ->where('url_key != ?', '');
+                if (isset($cols['store_id'])) {
+                    $select->where('store_id IN (?)', [0, $storeId]);
+                }
+                foreach ($conn->fetchAll($select) as $row) {
+                    $name = trim((string) ($row['name'] ?? ''));
+                    $key  = trim((string) ($row['url_key'] ?? ''));
+                    if ($name === '' || $key === '') {
+                        continue;
+                    }
+                    $entries[] = new IndexEntry(
+                        $base . '/category/' . $key,
+                        $name,
+                        IndexEntryInterface::TYPE_COLLECTION,
+                        0.6,
+                        '',
+                        ['source' => 'testimonial_category']
+                    );
+                }
+            } catch (\Throwable $e) {
+                $this->logger->info('[panth_llms_txt] testimonial categories failed: ' . $e->getMessage());
+            }
+        }
+        if ($hasItems) {
+            try {
+                $cols = $conn->describeTable($itemTable);
+                $columns = ['url_key', 'title'];
+                if (isset($cols['short_content'])) {
+                    $columns[] = 'short_content';
+                }
+                $select = $conn->select()
+                    ->from($itemTable, $columns)
+                    ->where('url_key IS NOT NULL')
+                    ->where('url_key != ?', '');
+                if (isset($cols['status'])) {
+                    $select->where('status = ?', 1);
+                }
+                if (isset($cols['store_id'])) {
+                    $select->where('store_id IN (?)', [0, $storeId]);
+                }
+                if (isset($cols['sort_order'])) {
+                    $select->order('sort_order ASC');
+                }
+                $select->limit(200);
+                foreach ($conn->fetchAll($select) as $row) {
+                    $title = trim((string) ($row['title'] ?? ''));
+                    $key   = trim((string) ($row['url_key'] ?? ''));
+                    if ($title === '' || $key === '') {
+                        continue;
+                    }
+                    $entries[] = new IndexEntry(
+                        $base . '/' . $key,
+                        $title,
+                        IndexEntryInterface::TYPE_CMS,
+                        0.55,
+                        trim((string) ($row['short_content'] ?? '')),
+                        ['source' => 'testimonial']
+                    );
+                }
+            } catch (\Throwable $e) {
+                $this->logger->info('[panth_llms_txt] testimonials failed: ' . $e->getMessage());
+            }
+        }
+        return $entries;
+    }
+
+    /**
+     * FAQ integration — emits IndexEntries for FAQ categories and
+     * individual FAQ items (scoped to the store via the
+     * panth_faq_item_store junction).
+     *
+     * @return IndexEntryInterface[]
+     */
+    private function faqEntries(int $storeId, string $baseUrl): array
+    {
+        try {
+            $conn = $this->resourceConnection->getConnection();
+        } catch (\Throwable) {
+            return [];
+        }
+        $itemTable     = $this->resourceConnection->getTableName('panth_faq_item');
+        $itemStore     = $this->resourceConnection->getTableName('panth_faq_item_store');
+        $categoryTable = $this->resourceConnection->getTableName('panth_faq_category');
+
+        $hasItems      = $conn->isTableExists($itemTable);
+        $hasCategories = $conn->isTableExists($categoryTable);
+        if (!$hasItems && !$hasCategories) {
+            return [];
+        }
+        $hasItemStore = $hasItems && $conn->isTableExists($itemStore);
+
+        // Source module stores this under `panth_faq/general/faq_route`
+        // (Helper\Data::XML_PATH_FAQ_ROUTE in module-faq).
+        $base = trim((string) ($this->scopeConfig->getValue('panth_faq/general/faq_route', ScopeInterface::SCOPE_STORE, $storeId)
+            ?: 'faq'), '/') ?: 'faq';
+        $base = rtrim($baseUrl, '/') . '/' . $base;
+
+        $entries = [];
+        if ($hasCategories) {
+            try {
+                $select = $conn->select()
+                    ->from($categoryTable, ['url_key', 'name'])
+                    ->where('is_active = ?', 1)
+                    ->where('url_key IS NOT NULL')
+                    ->where('url_key != ?', '');
+                foreach ($conn->fetchAll($select) as $row) {
+                    $name = trim((string) ($row['name'] ?? ''));
+                    $key  = trim((string) ($row['url_key'] ?? ''));
+                    if ($name === '' || $key === '') {
+                        continue;
+                    }
+                    $entries[] = new IndexEntry(
+                        $base . '/category/' . $key,
+                        $name,
+                        IndexEntryInterface::TYPE_COLLECTION,
+                        0.65,
+                        '',
+                        ['source' => 'faq_category']
+                    );
+                }
+            } catch (\Throwable $e) {
+                $this->logger->info('[panth_llms_txt] faq categories failed: ' . $e->getMessage());
+            }
+        }
+        if ($hasItems) {
+            try {
+                $cols = $conn->describeTable($itemTable);
+                $columns = ['i.url_key', 'i.question'];
+                $select = $conn->select()
+                    ->from(['i' => $itemTable], ['url_key', 'question'])
+                    ->where('i.url_key IS NOT NULL')
+                    ->where('i.url_key != ?', '');
+                if (isset($cols['is_active'])) {
+                    $select->where('i.is_active = ?', 1);
+                }
+                if ($hasItemStore) {
+                    $select->join(
+                        ['s' => $itemStore],
+                        's.item_id = i.item_id AND s.store_id IN (0, ' . (int) $storeId . ')',
+                        []
+                    )->group('i.item_id');
+                }
+                $select->limit(500);
+                foreach ($conn->fetchAll($select) as $row) {
+                    $title = trim((string) ($row['question'] ?? ''));
+                    $key   = trim((string) ($row['url_key'] ?? ''));
+                    if ($title === '' || $key === '') {
+                        continue;
+                    }
+                    $entries[] = new IndexEntry(
+                        $base . '/item/' . $key,
+                        $title,
+                        IndexEntryInterface::TYPE_CMS,
+                        0.55,
+                        '',
+                        ['source' => 'faq']
+                    );
+                }
+            } catch (\Throwable $e) {
+                $this->logger->info('[panth_llms_txt] faq items failed: ' . $e->getMessage());
+            }
+        }
+        return $entries;
+    }
+
+    /**
+     * Dynamic forms integration — emits IndexEntries for active,
+     * page-type forms only (skips widget-only forms which don't have
+     * standalone URLs).
+     *
+     * @return IndexEntryInterface[]
+     */
+    private function dynamicFormEntries(int $storeId, string $baseUrl): array
+    {
+        try {
+            $conn = $this->resourceConnection->getConnection();
+        } catch (\Throwable) {
+            return [];
+        }
+        $table = $this->resourceConnection->getTableName('panth_dynamic_form');
+        if (!$conn->isTableExists($table)) {
+            return [];
+        }
+        $base = rtrim($baseUrl, '/') . '/pages';
+
+        $entries = [];
+        try {
+            $cols = $conn->describeTable($table);
+            $columns = array_values(array_intersect(['url_key', 'title', 'name', 'description'], array_keys($cols)));
+            $select = $conn->select()
+                ->from($table, $columns)
+                ->where('url_key IS NOT NULL')
+                ->where('url_key != ?', '');
+            if (isset($cols['is_active'])) {
+                $select->where('is_active = ?', 1);
+            }
+            if (isset($cols['form_type'])) {
+                $select->where('form_type IN (?)', ['page', 'both']);
+            }
+            if (isset($cols['store_id'])) {
+                $select->where('store_id IN (?)', [0, $storeId]);
+            }
+            $select->limit(100);
+            foreach ($conn->fetchAll($select) as $row) {
+                $key = trim((string) ($row['url_key'] ?? ''));
+                if ($key === '') {
+                    continue;
+                }
+                $title = trim((string) ($row['title'] ?? ''));
+                if ($title === '') {
+                    $title = trim((string) ($row['name'] ?? '')) ?: $key;
+                }
+                $entries[] = new IndexEntry(
+                    $base . '/' . $key,
+                    $title,
+                    IndexEntryInterface::TYPE_CMS,
+                    0.5,
+                    trim((string) ($row['description'] ?? '')),
+                    ['source' => 'dynamic_form']
+                );
+            }
+        } catch (\Throwable $e) {
+            $this->logger->info('[panth_llms_txt] dynamic forms failed: ' . $e->getMessage());
+        }
+        return $entries;
     }
 }

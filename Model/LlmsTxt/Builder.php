@@ -18,6 +18,7 @@ use Panth\LlmsTxt\Model\Cache\Type as LlmsCache;
 use Panth\LlmsTxt\Model\LlmsTxt\Section\CategoryTree;
 use Panth\LlmsTxt\Model\LlmsTxt\Section\Collections;
 use Panth\LlmsTxt\Model\LlmsTxt\Section\KeyPages;
+use Panth\LlmsTxt\Model\LlmsTxt\Section\OptionalIntegrations;
 use Panth\LlmsTxt\Model\LlmsTxt\Section\Overview;
 use Panth\LlmsTxt\Model\LlmsTxt\Section\PriorityUrls;
 use Panth\LlmsTxt\Model\LlmsTxt\Section\ProductTypes;
@@ -59,7 +60,7 @@ class Builder
      * Schema version — bump to force cache invalidation when the output
      * format changes without a manual flush.
      */
-    private const SCHEMA_VERSION = 'v5';
+    private const SCHEMA_VERSION = 'v6';
 
     /**
      * Cache TTL upper bound. Tag invalidation overrides this on admin
@@ -82,7 +83,8 @@ class Builder
         private readonly UseCases $useCases,
         private readonly Sitemap $sitemap,
         private readonly SummaryGenerator $summaryGenerator,
-        private readonly SitemapFetcherInterface $sitemapFetcher
+        private readonly SitemapFetcherInterface $sitemapFetcher,
+        private readonly OptionalIntegrations $optionalIntegrations
     ) {
     }
 
@@ -178,6 +180,11 @@ class Builder
         foreach ($this->products->renderFeatured($storeId) as $l)    { $lines[] = $l; }
         foreach ($this->products->renderBestsellers($storeId) as $l) { $lines[] = $l; }
         foreach ($this->products->renderRecent($storeId) as $l)      { $lines[] = $l; }
+
+        // Optional integrations — testimonials / faqs / forms appear
+        // here when their respective source modules are installed.
+        // Renders nothing on sites where those tables don't exist.
+        foreach ($this->optionalIntegrations->render($storeId) as $l) { $lines[] = $l; }
 
         // Sitemap-derived URL highlights (ranked)
         foreach ($this->sitemap->render($storeId) as $l)             { $lines[] = $l; }

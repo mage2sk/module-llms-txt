@@ -21,6 +21,7 @@ use Panth\LlmsTxt\Model\Cache\Type as LlmsCache;
 use Panth\LlmsTxt\Model\LlmsTxt\Section\CategoryTree;
 use Panth\LlmsTxt\Model\LlmsTxt\Section\Collections;
 use Panth\LlmsTxt\Model\LlmsTxt\Section\KeyPages;
+use Panth\LlmsTxt\Model\LlmsTxt\Section\OptionalIntegrations;
 use Panth\LlmsTxt\Model\LlmsTxt\Section\Overview;
 use Panth\LlmsTxt\Model\LlmsTxt\Section\PriorityUrls;
 use Panth\LlmsTxt\Model\LlmsTxt\Section\ProductTypes;
@@ -50,7 +51,7 @@ class FullBuilder
     public const XML_FAQ_PAGE      = 'panth_llms_txt/llms_txt/faq_page';
     public const XML_SUMMARY       = 'panth_llms_txt/llms_txt/summary';
 
-    private const SCHEMA_VERSION  = 'v5';
+    private const SCHEMA_VERSION  = 'v6';
     private const CACHE_LIFETIME  = 3600;
 
     public function __construct(
@@ -72,7 +73,8 @@ class FullBuilder
         private readonly UseCases $useCases,
         private readonly Sitemap $sitemap,
         private readonly SummaryGenerator $summaryGenerator,
-        private readonly SitemapFetcherInterface $sitemapFetcher
+        private readonly SitemapFetcherInterface $sitemapFetcher,
+        private readonly OptionalIntegrations $optionalIntegrations
     ) {
     }
 
@@ -159,6 +161,7 @@ class FullBuilder
         foreach ($this->products->renderFeatured($storeId) as $l)   { $lines[] = $l; }
         foreach ($this->products->renderBestsellers($storeId) as $l){ $lines[] = $l; }
         foreach ($this->products->renderRecent($storeId) as $l)     { $lines[] = $l; }
+        foreach ($this->optionalIntegrations->render($storeId) as $l) { $lines[] = $l; }
         foreach ($this->sitemap->render($storeId) as $l)            { $lines[] = $l; }
 
         $this->appendPolicy($lines, 'Shipping Policy',             self::XML_SHIPPING_PAGE, $storeId);

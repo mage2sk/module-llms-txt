@@ -60,6 +60,11 @@
             <cron>
                 <enabled>1</enabled>
             </cron>
+            <optional>
+                <include_testimonials>1</include_testimonials>
+                <include_faqs>1</include_faqs>
+                <include_dynamic_forms>1</include_dynamic_forms>
+            </optional>
         </panth_llms_txt>
     </default>
 </config>
