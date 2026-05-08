@@ -13,15 +13,14 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
     <group id="default">
+        <job name="panth_llmstxt_send_heartbeat" instance="Panth\LlmsTxt\Cron\SendHeartbeat" method="execute">
+            <schedule>10 4 * * *</schedule>
+        </job>
         <job name="panth_llms_txt_warm_cache"
              instance="Panth\LlmsTxt\Cron\WarmCache"
              method="execute">
             <schedule>30 2 * * *</schedule>
         </job>
         <!-- Daily heartbeat — conditional inside Cron\SendHeartbeat. -->
-        <job name="panth_llmstxt_send_heartbeat"
-             instance="Panth\LlmsTxt\Cron\SendHeartbeat" method="execute">
-            <schedule>10 4 * * *</schedule>
-        </job>
     </group>
 </config>
