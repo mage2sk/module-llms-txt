@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace Panth\LlmsTxt\Controller\Llms;
 
 use Magento\Framework\App\Action\HttpGetActionInterface;
+use Magento\Framework\App\Action\HttpHeadActionInterface;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\RawFactory;
 use Magento\Framework\Controller\ResultInterface;
@@ -20,7 +21,7 @@ use Panth\LlmsTxt\Model\LlmsTxt\Builder;
  * (ChatGPT, Claude, Perplexity, Gemini). Output is built + cached by
  * Builder; this controller just stamps the right HTTP response headers.
  */
-class Index implements HttpGetActionInterface
+class Index implements HttpGetActionInterface, HttpHeadActionInterface
 {
     public function __construct(
         private readonly RawFactory $rawFactory,

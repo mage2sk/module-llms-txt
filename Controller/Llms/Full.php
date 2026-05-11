@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace Panth\LlmsTxt\Controller\Llms;
 
 use Magento\Framework\App\Action\HttpGetActionInterface;
+use Magento\Framework\App\Action\HttpHeadActionInterface;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\Result\RawFactory;
 use Magento\Framework\Controller\ResultInterface;
@@ -20,7 +21,7 @@ use Panth\LlmsTxt\Model\LlmsTxt\FullBuilder;
  * but with CMS page bodies + product descriptions + prices inline for
  * LLMs that ingest the longer document.
  */
-class Full implements HttpGetActionInterface
+class Full implements HttpGetActionInterface, HttpHeadActionInterface
 {
     public function __construct(
         private readonly RawFactory $rawFactory,
