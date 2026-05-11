@@ -663,19 +663,27 @@ Yes. Standard controller with appropriate `Cache-Control: public, max-age=3600` 
 
 ### HEAD requests on rewritten paths return 404
 
-Crawlers and SEO auditors (Lighthouse, Ahrefs, many LLM bots) probe with `HEAD` before `GET`. On a stock Magento install, `HEAD /llms.txt` returns `404` while `GET /llms.txt` returns `200`. The controllers themselves handle `HEAD` correctly — the issue is in Magento's url_rewrite + FrontController interaction, which does not forward `HEAD` requests to the matched controller. The same controllers reached directly via `/panth_llms/llms/index`, `/panth_llms/llms/full`, `/panth_llms/llms/json` answer `HEAD` with `200`.
+Crawlers and SEO auditors (Lighthouse, Ahrefs, many LLM bots) probe with `HEAD` before `GET`. On a stock Magento install, `HEAD /llms.txt` returns `404` while `GET /llms.txt` returns `200`. The controllers themselves handle `HEAD` correctly (the `HttpHeadActionInterface` marker landed in 1.3.6) — the direct routes `/panth_llms/llms/index`, `/panth_llms/llms/full`, `/panth_llms/llms/json` all answer `HEAD` with `200`. The 404 only occurs when the friendly path goes through Magento's `url_rewrite` layer, which doesn't forward `HEAD` to the matched controller.
 
-Workaround: include the bundled nginx snippet at `etc/nginx.conf.sample` in your server block. It rewrites `HEAD` requests on the friendly paths to the direct route, which handles them correctly.
+**Why a Magento-side or rewrite-based nginx fix can't solve this:** nginx `rewrite ... last` updates `$uri` but not `$request_uri`. Magento's stock vhost passes `fastcgi_param REQUEST_URI $request_uri` to PHP unconditionally, so PHP still sees `REQUEST_URI=/llms.txt` and re-enters the same broken `url_rewrite` path inside Magento. The 1.3.7 sample tried this approach and didn't actually work.
+
+**Working fix (shipped in 1.3.8):** answer `HEAD` directly from nginx with the same headers the `GET` response would set, bypassing PHP entirely. RFC 7231 §4.3.2 says HEAD must return the same status + headers as GET with an empty body, so this is fully compliant and any HEAD-precheck crawler is satisfied. `GET` requests fall through to PHP unchanged.
+
+Include the bundled `etc/nginx.conf.sample` in your nginx `server { ... }` block **before** the catch-all `location / { try_files ... }` block:
 
 ```nginx
 include /path/to/vendor/mage2kishan/module-llms-txt/etc/nginx.conf.sample;
 ```
 
-Verify after reload:
+Reload nginx and verify:
 
 ```bash
-curl -sI -X HEAD https://your-store.example/llms.txt | head -1
-# expect: HTTP/2 200
+nginx -t && nginx -s reload
+for path in /llms.txt /llms-full.txt /llms.json; do
+    curl -s -o /dev/null -w "HEAD %{url_effective} -> %{http_code}\n" \
+        -I "https://your-store.example$path"
+done
+# expect: HTTP 200 on all three
 ```
 
 ---

@@ -1,37 +1,59 @@
 # Panth_LlmsTxt — HEAD request workaround
 #
-# Magento's url_rewrite layer does not pass HEAD requests through to the
-# matched controller; HEAD on a rewritten path (/llms.txt, /llms-full.txt,
-# /llms.json) returns 404 even though GET on the same path returns 200,
-# and HEAD on the direct route (/panth_llms/llms/index, etc.) returns 200.
+# Magento's url_rewrite layer 404s HEAD requests on /llms.txt etc even
+# though GET works. The controller-side fix (HttpHeadActionInterface,
+# shipped in 1.3.6) makes the direct route /panth_llms/llms/index answer
+# HEAD with 200, but requests via the friendly /llms.txt path still
+# bottom out at a 404. The reason this is an nginx-level fix and not a
+# Magento patch:
 #
-# This is an upstream Magento issue affecting any custom controller exposed
-# via url_rewrite. Crawlers and SEO tools (Lighthouse, Ahrefs, many LLM
-# crawlers) probe with HEAD before GET — a 404 makes the resource look
-# unavailable even though GET works.
+# - Nginx `rewrite ... last` updates $uri but does NOT update
+#   $request_uri. Magento's stock vhost passes
+#   fastcgi_param REQUEST_URI $request_uri to PHP unconditionally, so
+#   PHP receives REQUEST_URI=/llms.txt and re-enters the broken
+#   url_rewrite + HEAD path inside Magento. No rewrite-based recipe can
+#   sidestep this without monkey-patching the fastcgi_param block.
+# - The named-location + error_page variants hit the same
+#   $request_uri invariant.
 #
-# Include this snippet in the nginx `server { ... }` block BEFORE the
-# standard `location / { try_files $uri $uri/ /index.php?$args; }` block.
-# Adjust the internal paths to your `panth_llms` frontName if you have
-# overridden it.
+# Per RFC 7231 §4.3.2, HEAD must return the same status + headers as
+# GET with an empty body. The cleanest workaround is to answer HEAD
+# directly from nginx with the headers the GET response would set,
+# bypassing PHP entirely. GET requests fall through to PHP unchanged.
+#
+# Include this in your nginx `server { ... }` block BEFORE the catch-all
+# `location / { try_files $uri $uri/ /index.php$is_args$args; }` block.
+# Adjust internal paths if you have overridden the panth_llms frontName.
 
 location = /llms.txt {
     if ($request_method = HEAD) {
-        rewrite ^/llms\.txt$ /panth_llms/llms/index last;
+        add_header Content-Type "text/plain; charset=utf-8" always;
+        add_header Cache-Control "public, max-age=3600" always;
+        add_header X-Robots-Tag "noindex" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        return 200;
     }
-    try_files $uri $uri/ /index.php?$args;
+    try_files $uri $uri/ /index.php$is_args$args;
 }
 
 location = /llms-full.txt {
     if ($request_method = HEAD) {
-        rewrite ^/llms-full\.txt$ /panth_llms/llms/full last;
+        add_header Content-Type "text/plain; charset=utf-8" always;
+        add_header Cache-Control "public, max-age=3600" always;
+        add_header X-Robots-Tag "noindex" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        return 200;
     }
-    try_files $uri $uri/ /index.php?$args;
+    try_files $uri $uri/ /index.php$is_args$args;
 }
 
 location = /llms.json {
     if ($request_method = HEAD) {
-        rewrite ^/llms\.json$ /panth_llms/llms/json last;
+        add_header Content-Type "application/json; charset=utf-8" always;
+        add_header Cache-Control "public, max-age=3600" always;
+        add_header X-Robots-Tag "noindex" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        return 200;
     }
-    try_files $uri $uri/ /index.php?$args;
+    try_files $uri $uri/ /index.php$is_args$args;
 }
