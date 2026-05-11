@@ -659,6 +659,27 @@ Yes. Standard controller with appropriate `Cache-Control: public, max-age=3600` 
 
 ---
 
+## Known issues
+
+### HEAD requests on rewritten paths return 404
+
+Crawlers and SEO auditors (Lighthouse, Ahrefs, many LLM bots) probe with `HEAD` before `GET`. On a stock Magento install, `HEAD /llms.txt` returns `404` while `GET /llms.txt` returns `200`. The controllers themselves handle `HEAD` correctly — the issue is in Magento's url_rewrite + FrontController interaction, which does not forward `HEAD` requests to the matched controller. The same controllers reached directly via `/panth_llms/llms/index`, `/panth_llms/llms/full`, `/panth_llms/llms/json` answer `HEAD` with `200`.
+
+Workaround: include the bundled nginx snippet at `etc/nginx.conf.sample` in your server block. It rewrites `HEAD` requests on the friendly paths to the direct route, which handles them correctly.
+
+```nginx
+include /path/to/vendor/mage2kishan/module-llms-txt/etc/nginx.conf.sample;
+```
+
+Verify after reload:
+
+```bash
+curl -sI -X HEAD https://your-store.example/llms.txt | head -1
+# expect: HTTP/2 200
+```
+
+---
+
 ## Support
 
 | Channel | Contact |

@@ -1,0 +1,37 @@
+# Panth_LlmsTxt — HEAD request workaround
+#
+# Magento's url_rewrite layer does not pass HEAD requests through to the
+# matched controller; HEAD on a rewritten path (/llms.txt, /llms-full.txt,
+# /llms.json) returns 404 even though GET on the same path returns 200,
+# and HEAD on the direct route (/panth_llms/llms/index, etc.) returns 200.
+#
+# This is an upstream Magento issue affecting any custom controller exposed
+# via url_rewrite. Crawlers and SEO tools (Lighthouse, Ahrefs, many LLM
+# crawlers) probe with HEAD before GET — a 404 makes the resource look
+# unavailable even though GET works.
+#
+# Include this snippet in the nginx `server { ... }` block BEFORE the
+# standard `location / { try_files $uri $uri/ /index.php?$args; }` block.
+# Adjust the internal paths to your `panth_llms` frontName if you have
+# overridden it.
+
+location = /llms.txt {
+    if ($request_method = HEAD) {
+        rewrite ^/llms\.txt$ /panth_llms/llms/index last;
+    }
+    try_files $uri $uri/ /index.php?$args;
+}
+
+location = /llms-full.txt {
+    if ($request_method = HEAD) {
+        rewrite ^/llms-full\.txt$ /panth_llms/llms/full last;
+    }
+    try_files $uri $uri/ /index.php?$args;
+}
+
+location = /llms.json {
+    if ($request_method = HEAD) {
+        rewrite ^/llms\.json$ /panth_llms/llms/json last;
+    }
+    try_files $uri $uri/ /index.php?$args;
+}
