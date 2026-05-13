@@ -59,7 +59,7 @@
                 <field id="auto" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Auto-detect Default Sitemap</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>When the URL list above is empty, fall back to <code>{baseUrl}sitemap.xml</code>.</comment>
+                    <comment><![CDATA[When the URL list above is empty, fall back to <code>{baseUrl}sitemap.xml</code>.]]></comment>
                 </field>
                 <field id="render_section" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Render "Sitemap Highlights" Section</label>
@@ -213,7 +213,7 @@
                 <field id="shipping_page" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Shipping Policy CMS Identifier</label>
                     <config_path>panth_llms_txt/llms_txt/shipping_page</config_path>
-                    <comment>Example: <code>shipping-policy</code>.</comment>
+                    <comment><![CDATA[Example: <code>shipping-policy</code>.]]></comment>
                     <depends>
                         <field id="generate_full_llms">1</field>
                     </depends>
@@ -221,7 +221,7 @@
                 <field id="returns_page" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Returns Policy CMS Identifier</label>
                     <config_path>panth_llms_txt/llms_txt/returns_page</config_path>
-                    <comment>Example: <code>returns-policy</code>.</comment>
+                    <comment><![CDATA[Example: <code>returns-policy</code>.]]></comment>
                     <depends>
                         <field id="generate_full_llms">1</field>
                     </depends>
@@ -229,7 +229,7 @@
                 <field id="about_page" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>About Us CMS Identifier</label>
                     <config_path>panth_llms_txt/llms_txt/about_page</config_path>
-                    <comment>Example: <code>about-us</code>.</comment>
+                    <comment><![CDATA[Example: <code>about-us</code>.]]></comment>
                     <depends>
                         <field id="generate_full_llms">1</field>
                     </depends>
@@ -237,7 +237,7 @@
                 <field id="faq_page" translate="label comment" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>FAQ CMS Identifier</label>
                     <config_path>panth_llms_txt/llms_txt/faq_page</config_path>
-                    <comment>Example: <code>faq</code>.</comment>
+                    <comment><![CDATA[Example: <code>faq</code>.]]></comment>
                     <depends>
                         <field id="generate_full_llms">1</field>
                     </depends>
@@ -249,7 +249,7 @@
                 <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enable /llms.json</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>Serves a structured JSON document at /llms.json containing the same sections in a stable, machine-readable shape (schema: <code>panth.llms_txt/v1</code>).</comment>
+                    <comment><![CDATA[Serves a structured JSON document at /llms.json containing the same sections in a stable, machine-readable shape (schema: <code>panth.llms_txt/v1</code>).]]></comment>
                 </field>
             </group>
 
