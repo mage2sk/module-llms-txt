@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Panth LLMs.txt - Default configuration values.
+ *
+ * Defaults map 1:1 to the fields declared in etc/adminhtml/system.xml.
+ * v1.3 adds the dynamic sitemap engine, weighted ranker, JSON output
+ * and use-case grouping options on top of the v1.2 baseline.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <panth_llms_txt>
+            <llms_txt>
+                <enabled>1</enabled>
+                <summary></summary>
+                <max_category_depth>3</max_category_depth>
+                <max_cms>100</max_cms>
+                <exclude_cms></exclude_cms>
+                <priority_urls></priority_urls>
+                <collections_categories></collections_categories>
+                <featured_attribute>is_featured</featured_attribute>
+                <max_featured>6</max_featured>
+                <show_bestsellers>1</show_bestsellers>
+                <max_bestsellers>10</max_bestsellers>
+                <show_recent>1</show_recent>
+                <max_recent>10</max_recent>
+                <include_short_description>1</include_short_description>
+                <generate_full_llms>0</generate_full_llms>
+                <shipping_page></shipping_page>
+                <returns_page></returns_page>
+                <about_page></about_page>
+                <faq_page></faq_page>
+            </llms_txt>
+            <sitemap>
+                <urls></urls>
+                <auto>1</auto>
+                <render_section>1</render_section>
+                <max_rendered>50</max_rendered>
+                <max_entries>5000</max_entries>
+                <timeout>8</timeout>
+                <ttl>3600</ttl>
+            </sitemap>
+            <weighting>
+                <type_weights></type_weights>
+                <pinned_urls></pinned_urls>
+                <min_score>0.20</min_score>
+                <max_entries_per_section>200</max_entries_per_section>
+            </weighting>
+            <product_types>
+                <enabled>1</enabled>
+            </product_types>
+            <use_cases>
+                <buckets></buckets>
+            </use_cases>
+            <json>
+                <enabled>1</enabled>
+            </json>
+            <cron>
+                <enabled>1</enabled>
+            </cron>
+            <optional>
+                <include_testimonials>1</include_testimonials>
+                <include_faqs>1</include_faqs>
+                <include_dynamic_forms>1</include_dynamic_forms>
+            </optional>
+        </panth_llms_txt>
+    </default>
+</config>
