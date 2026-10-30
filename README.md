@@ -249,7 +249,7 @@ The following remain after removal and can be deleted manually if wanted: the cu
 
 ## License
 
-Proprietary, as declared in `composer.json`. The package is published on Packagist and can be installed with Composer; see the product page for the terms of use.
+Free and open source under the MIT License. See [LICENSE.txt](LICENSE.txt).
 
 ## Changelog
 
